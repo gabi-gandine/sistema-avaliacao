@@ -32,16 +32,18 @@ public class RegistrationForm implements ActionListener {
     {
         frame=new JFrame();
         frame.setTitle("Registration Form");
+        frame.setBackground(Color.CYAN);
         frame.setBounds(40,40,380,600);
         frame.getContentPane().setBackground(Color.pink);
         frame.getContentPane().setLayout(null);
-        frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
+        frame.add(new JTextArea());
     }
     public void setLocationAndSize()
     {
         nameLabel.setBounds(20,20,40,70);
+        nameLabel.setVisible(true);
         matriculaLabel.setBounds(20,70,80,70);
         passwordLabel.setBounds(20,170,100,70);
         confirmPasswordLabel.setBounds(20,220,140,70);
@@ -56,6 +58,7 @@ public class RegistrationForm implements ActionListener {
     }
     public void addComponentsToFrame()
     {
+        System.out.println("add");
         frame.add(nameLabel);
         frame.add(matriculaLabel);
         frame.add(passwordLabel);
@@ -68,6 +71,7 @@ public class RegistrationForm implements ActionListener {
         frame.add(emailTextField);
         frame.add(registerButton);
         frame.add(resetButton);
+        frame.setVisible(true);
     }
     public void actionEvent()
     {
@@ -80,18 +84,16 @@ public class RegistrationForm implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getSource()==registerButton)
         {
-            try {
-                Connection connection=DriverManager.getConnection("jdbc:mysql://localhost:3306/myDatabase","root","root");
-                PreparedStatement Pstatement=connection.prepareStatement("insert into student values(?,?,?,?,?,?,?)");
-                Pstatement.setString(1,nameTextField.getText());
+            //try {
+                /*Pstatement.setString(1,nameTextField.getText());
                 Pstatement.setString(2,matriculaField.getText());
-                Pstatement.setString(4,passwordField.getText());
-                Pstatement.setString(5,confirmPasswordField.getText());
-                Pstatement.setString(7,emailTextField.getText());
-                if(passwordField.getText().equalsIgnoreCase(confirmPasswordField.getText()))
+                Pstatement.setString(4,passwordField.getPassword().toString());
+                Pstatement.setString(5,confirmPasswordField.getPassword().toString());
+                Pstatement.setString(7,emailTextField.getText());*/
+                if(passwordField.getPassword().equals(confirmPasswordField.getPassword()))
                 {
 
-                    Pstatement.executeUpdate();
+                    //Pstatement.executeUpdate();
                     JOptionPane.showMessageDialog(null,"Data Registered Successfully");
                 }
                 else
@@ -99,9 +101,9 @@ public class RegistrationForm implements ActionListener {
                     JOptionPane.showMessageDialog(null,"password did not match");
                 }
 
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+           // } catch ( ) {
+               //e1.printStackTrace();
+          //  }
 
 
         }

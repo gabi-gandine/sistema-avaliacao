@@ -1,12 +1,10 @@
-package models;
+package com.forms.models;
 
 /**
  *
  * @author gabriela
  */
 import jakarta.persistence.*;
-import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(name = "turma")
