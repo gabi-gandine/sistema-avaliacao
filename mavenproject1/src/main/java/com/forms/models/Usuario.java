@@ -31,8 +31,11 @@ public class Usuario{
     @JoinColumn(name = "idPerfil", referencedColumnName = "id")
     private Perfil perfil;
     
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Turma> turma;
+    @OneToMany(mappedBy = "aluno")
+    private Set<Turma> turmasComoAluno;
+
+    @OneToMany(mappedBy = "professor")
+    private Set<Turma> turmasComoProfessor;
 
     /**
      * @return the id

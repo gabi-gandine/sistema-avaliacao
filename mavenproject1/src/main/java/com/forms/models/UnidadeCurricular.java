@@ -21,7 +21,7 @@ public class UnidadeCurricular{
     @Column(name="tipo")
     private String tipo;
     
-    @OneToMany(mappedBy = "unidadeCurricular", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "uc", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Turma> turmas;    
     
     @ManyToOne
