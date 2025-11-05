@@ -5,6 +5,7 @@ package com.forms.models;
  * @author gabriela
  */
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "perfil")
@@ -12,25 +13,23 @@ public class Perfil{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    
-    @Column(name="nome")
-    private String nome;   
-    
-    @OneToOne(mappedBy = "perfil")
-    private Usuario usuario;
+    private Integer id;
+
+    @NotBlank(message = "Nome do perfil é obrigatório")
+    @Column(name="nome", nullable = false, unique = true, length = 50)
+    private String nome;
 
     /**
      * @return the id
      */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

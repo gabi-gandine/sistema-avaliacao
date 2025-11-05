@@ -5,31 +5,60 @@ package com.forms.models;
  * @author gabriela
  */
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "usuairo")
+@Table(name = "usuario",
+       uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 public class Usuario{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    
-    @Column(name="nome")
+    private Integer id;
+
+    @NotBlank(message = "Nome é obrigatório")
+    @Size(min = 3, max = 100, message = "Nome deve ter entre 3 e 100 caracteres")
+    @Column(name="nome", nullable = false, length = 100)
     private String nome;
-    
-    @Column(name="email")
+
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email inválido")
+    @Column(name="email", nullable = false, unique = true, length = 100)
     private String email;
-    
-    @Column(name="matriculaSiape")
-    private String matriculaSemestre;
-    
-    @Column(name="senhaHash")
+
+    @NotBlank(message = "Matrícula/SIAPE é obrigatória")
+    @Column(name="matriculaSiape", nullable = false, length = 20)
+    private String matriculaSiape;
+
+    @Column(name="senhaHash", nullable = false)
     private String senhaHash;
-    
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "idPerfil", referencedColumnName = "id")
+
+    @NotNull(message = "Perfil é obrigatório")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "idPerfil", referencedColumnName = "id", nullable = false)
     private Perfil perfil;
+
+    @Column(name = "createdAt", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updatedAt")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
     
     @OneToMany(mappedBy = "aluno")
     private Set<Turma> turmasComoAluno;
@@ -40,14 +69,11 @@ public class Usuario{
     /**
      * @return the id
      */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -80,17 +106,41 @@ public class Usuario{
     }
 
     /**
-     * @return the matriculaSemestre
+     * @return the matriculaSiape
      */
-    public String getMatriculaSemestre() {
-        return matriculaSemestre;
+    public String getMatriculaSiape() {
+        return matriculaSiape;
     }
 
     /**
-     * @param matriculaSemestre the matriculaSemestre to set
+     * @param matriculaSiape the matriculaSiape to set
      */
-    public void setMatriculaSemestre(String matriculaSemestre) {
-        this.matriculaSemestre = matriculaSemestre;
+    public void setMatriculaSiape(String matriculaSiape) {
+        this.matriculaSiape = matriculaSiape;
+    }
+
+    public Set<Turma> getTurmasComoAluno() {
+        return turmasComoAluno;
+    }
+
+    public void setTurmasComoAluno(Set<Turma> turmasComoAluno) {
+        this.turmasComoAluno = turmasComoAluno;
+    }
+
+    public Set<Turma> getTurmasComoProfessor() {
+        return turmasComoProfessor;
+    }
+
+    public void setTurmasComoProfessor(Set<Turma> turmasComoProfessor) {
+        this.turmasComoProfessor = turmasComoProfessor;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     /**

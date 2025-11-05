@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Sistema de Avaliação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .field-error {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .required {
+            color: red;
+        }
+        .help-text {
+            font-size: 0.875em;
+            color: #6c757d;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cadastre-se</h1>
+
+    <!-- Mensagem de erro geral -->
+    <div th:if="${error}" class="alert alert-error">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form th:action="@{/usuarios/cadastro}" th:object="${usuario}" method="post">
+        <div class="form-group">
+            <label for="nome">Nome Completo: <span class="required">*</span></label>
+            <input type="text" id="nome" th:field="*{nome}" required minlength="3" maxlength="100" />
+            <div class="field-error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email: <span class="required">*</span></label>
+            <input type="email" id="email" th:field="*{email}" required maxlength="100" />
+            <div class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="matriculaSiape">Matrícula/SIAPE: <span class="required">*</span></label>
+            <input type="text" id="matriculaSiape" th:field="*{matriculaSiape}" required maxlength="20" />
+            <div class="help-text">Informe sua matrícula (aluno) ou SIAPE (professor/servidor)</div>
+            <div class="field-error" th:if="${#fields.hasErrors('matriculaSiape')}" th:errors="*{matriculaSiape}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="senha">Senha: <span class="required">*</span></label>
+            <input type="password" id="senha" name="senha" required minlength="6" />
+            <div class="help-text">Mínimo de 6 caracteres</div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmaSenha">Confirme a Senha: <span class="required">*</span></label>
+            <input type="password" id="confirmaSenha" name="confirmaSenha" required minlength="6" />
+        </div>
+
+        <div class="form-group">
+            <label for="perfil">Perfil: <span class="required">*</span></label>
+            <select id="perfil" th:field="*{perfil.id}" required>
+                <option value="">Selecione seu perfil...</option>
+                <option th:each="p : ${perfis}"
+                        th:value="${p.id}"
+                        th:text="${p.nome}">
+                </option>
+            </select>
+            <div class="field-error" th:if="${#fields.hasErrors('perfil')}" th:errors="*{perfil}"></div>
+        </div>
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="login-link">
+        <a th:href="@{/login}">Já tem conta? Faça login</a>
+    </div>
+
+    <script>
+        // Validação de senha no frontend
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const senha = document.getElementById('senha').value;
+            const confirmaSenha = document.getElementById('confirmaSenha').value;
+
+            if (senha !== confirmaSenha) {
+                e.preventDefault();
+                alert('As senhas não coincidem!');
+                return false;
+            }
+
+            if (senha.length < 6) {
+                e.preventDefault();
+                alert('A senha deve ter no mínimo 6 caracteres!');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

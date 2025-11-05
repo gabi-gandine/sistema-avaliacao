@@ -12,7 +12,7 @@ public class Turma{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     
     @Column(name="ano")
     private int ano;
@@ -35,42 +35,42 @@ public class Turma{
     /**
      * @return the id
      */
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
     /**
      * @return the ano
      */
-    public int getAno() {
+    public Integer getAno() {
         return ano;
     }
 
     /**
      * @param ano the ano to set
      */
-    public void setAno(int ano) {
+    public void setAno(Integer ano) {
         this.ano = ano;
     }
 
     /**
      * @return the semestre
      */
-    public int getSemestre() {
+    public Integer getSemestre() {
         return semestre;
     }
 
     /**
      * @param semestre the semestre to set
      */
-    public void setSemestre(int semestre) {
+    public void setSemestre(Integer semestre) {
         this.semestre = semestre;
     }
 
