@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}"></title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .card h3 { margin-top: 0; color: #007bff; }
+        .logout-btn { background-color: #dc3545; color: white; padding: 8px 15px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 th:text="${paginaTitulo}">Dashboard</h1>
+        <div>
+            Olá, <span th:text="${usuario.nome}">[Nome do Aluno]</span>!
+            (<span th:text="${usuario.email}">[Email]</span>)
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="logout-btn">Sair</button>
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            </form>
+        </div>
+    </div>
+    
+    <hr/>
+
+    <h2>📝 Avaliações Pendentes</h2>
+    
+    <div th:if="${avaliacoesPendentes != null and avaliacoesPendentes.isEmpty()}">
+        <p>Você não possui nenhuma avaliação pendente no momento.</p>
+    </div>
+    
+    <div th:if="${avaliacoesPendentes != null}" th:each="avaliacao : ${avaliacoesPendentes}">
+        <div class="card">
+            <h3 th:text="${avaliacao.titulo}">Título da Avaliação</h3>
+            <p>Disciplina: <span th:text="${avaliacao.turma.uc.nome}"></span></p>
+            <p>Período: <span th:text="${#temporals.format(avaliacao.dataInicio, 'dd/MM/yyyy')} + ' até ' + ${#temporals.format(avaliacao.dataFim, 'dd/MM/yyyy')}"></span></p>
+            <p th:if="${avaliacao.anonima}">*Esta avaliação é **anônima**.</p>
+            <a th:href="@{'/aluno/avaliacao/' + ${avaliacao.id}}">Responder Avaliação</a>
+        </div>
+    </div>
+    
+</body>
+</html>
