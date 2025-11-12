@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}"></title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .header { border-bottom: 2px solid #ffc107; padding-bottom: 10px; margin-bottom: 20px; }
+        h1 { color: #ffc107; font-weight: 300; }
+        h2 { color: #007bff; border-bottom: 1px dashed #007bff; padding-bottom: 5px; margin-top: 30px; }
+        .alert-success { background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .alert-error { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-group button { background-color: #007bff; color: white; padding: 10px 15px; border: none; cursor: pointer; border-radius: 4px; }
+        .form-group button:hover { background-color: #0056b3; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .action-link { margin-right: 10px; color: #dc3545; text-decoration: none; }
+        .action-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Gestão de Contexto Avaliativo (RF04, RF05, RF06)</h1>
+            <p>
+                <a th:href="@{/coordenador/dashboard}">← Voltar para o Dashboard</a>
+            </p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-error">
+            <span th:text="${error}"></span>
+        </div>
+
+        <h2>Cursos</h2>
+        
+        <form th:action="@{/coordenador/curso/salvar}" th:object="${novoCurso}" method="post" class="form-group">
+            <input type="hidden" th:field="*{id}" />
+            <label for="cursoNome">Nome do Curso:</label>
+            <input type="text" id="cursoNome" th:field="*{nome}" placeholder="Ex: Ciência da Computação" required />
+            <button type="submit">Salvar Curso</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="curso : ${cursos}">
+                    <td th:text="${curso.id}">1</td>
+                    <td th:text="${curso.nome}"></td>
+                    <td>
+                        <a th:href="@{'/coordenador/curso/deletar/' + ${curso.id}}" class="action-link" onclick="return confirm('Tem certeza que deseja deletar este curso?')">Deletar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Unidades Curriculares (UCs / Disciplinas)</h2>
+
+        <form th:action="@{/coordenador/uc/salvar}" th:object="${novaUC}" method="post" class="form-group">
+            <input type="hidden" th:field="*{id}" />
+            
+            <label for="ucNome">Nome da UC:</label>
+            <input type="text" id="ucNome" th:field="*{nome}" placeholder="Ex: Estrutura de Dados" required />
+
+            <label for="ucTipo">Tipo:</label>
+            <input type="text" id="ucTipo" th:field="*{tipo}" placeholder="Ex: Obrigatória/Extensão" required />
+            
+            <label for="ucCurso">Vincular ao Curso:</label>
+            <select id="ucCurso" th:field="*{curso.id}" required>
+                <option value="">Selecione um Curso...</option>
+                <option th:each="curso : ${cursos}"
+                        th:value="${curso.id}"
+                        th:text="${curso.nome}">
+                </option>
+            </select>
+
+            <button type="submit">Salvar UC</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>Curso</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="uc : ${ucs}">
+                    <td th:text="${uc.id}">1</td>
+                    <td th:text="${uc.nome}"></td>
+                    <td th:text="${uc.tipo}"></td>
+                    <td th:text="${uc.curso.nome}"></td>
+                    <td>
+                        <a th:href="@{'/coordenador/uc/deletar/' + ${uc.id}}" class="action-link" onclick="return confirm('Tem certeza que deseja deletar esta UC?')">Deletar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>Turmas Ofertadas</h2>
+        
+        <form th:action="@{/coordenador/turma/salvar}" th:object="${novaTurma}" method="post" class="form-group">
+            <input type="hidden" th:field="*{id}" />
+
+            <label for="turmaUC">Unidade Curricular (Disciplina):</label>
+            <select id="turmaUC" name="ucId" required>
+                <option value="">Selecione a UC...</option>
+                <option th:each="uc : ${ucs}"
+                        th:value="${uc.id}"
+                        th:text="${uc.nome}">
+                </option>
+            </select>
+            
+            <label for="turmaProfessor">Professor (RF05):</label>
+            <select id="turmaProfessor" name="professorId" required>
+                <option value="">Selecione o Professor...</option>
+                <option th:each="prof : ${professores}"
+                        th:value="${prof.id}"
+                        th:text="${prof.nome}">
+                </option>
+            </select>
+
+            <label for="turmaAluno">Aluno (RF06 - Matrícula):</label>
+            <select id="turmaAluno" name="alunoId" required>
+                <option value="">Selecione o Aluno...</option>
+                <option th:each="aluno : ${alunos}"
+                        th:value="${aluno.id}"
+                        th:text="${aluno.nome + ' (' + aluno.matriculaSiape + ')'}">
+                </option>
+            </select>
+
+            <label for="turmaAno">Ano:</label>
+            <input type="number" id="turmaAno" th:field="*{ano}" placeholder="Ex: 2024" required min="1900" max="2100" />
+            
+            <label for="turmaSemestre">Semestre:</label>
+            <input type="number" id="turmaSemestre" th:field="*{semestre}" placeholder="Ex: 1 ou 2" required min="1" max="2" />
+
+            <button type="submit">Salvar Turma</button>
+        </form>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>UC / Disciplina</th>
+                    <th>Professor</th>
+                    <th>Aluno</th>
+                    <th>Período</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="turma : ${turmas}">
+                    <td th:text="${turma.id}">1</td>
+                    <td th:text="${turma.uc.nome}"></td>
+                    <td th:text="${turma.professor.nome}"></td>
+                    <td th:text="${turma.aluno.nome}"></td>
+                    <td th:text="${turma.ano + '/' + turma.semestre}"></td>
+                    <td>
+                        <a th:href="@{'/coordenador/turma/deletar/' + ${turma.id}}" class="action-link" onclick="return confirm('Tem certeza que deseja deletar esta turma?')">Deletar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</body>
+</html>

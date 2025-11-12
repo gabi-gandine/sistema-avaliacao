@@ -114,4 +114,18 @@ public class UsuarioService {
         }
         usuarioRepository.deleteById(id);
     }
+
+    // Busca um usuário com um perfil específico por nome
+    public Optional<Usuario> buscarPorPerfilNome(String nomePerfil) {
+        return perfilRepository.findByNome(nomePerfil).flatMap(perfil -> {
+            return Optional.empty(); 
+        });
+    }
+
+    // Lista todos os usuários de um perfil (usado para popular selects)
+    public List<Usuario> listarPorPerfil(Perfil perfil) {
+        return usuarioRepository.findAll().stream()
+               .filter(u -> u.getPerfil().getId().equals(perfil.getId()))
+               .collect(java.util.stream.Collectors.toList());
+    }
 }
