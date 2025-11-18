@@ -60,7 +60,7 @@ public class Usuario{
         updatedAt = LocalDateTime.now();
     }
     
-    @OneToMany(mappedBy = "aluno")
+    @ManyToMany()
     private Set<Turma> turmasComoAluno;
 
     @OneToMany(mappedBy = "professor")

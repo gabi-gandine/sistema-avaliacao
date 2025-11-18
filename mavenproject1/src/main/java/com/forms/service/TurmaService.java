@@ -49,7 +49,7 @@ public class TurmaService {
      * Busca turmas onde o usuário é aluno (RF06).
      */
     public List<Turma> buscarPorAluno(Usuario aluno) {
-        return turmaRepository.findByAluno(aluno);
+        return turmaRepository.findByAlunos(aluno);
     }
 
     /**

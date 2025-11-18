@@ -12,5 +12,5 @@ public interface TurmaRepository extends JpaRepository<Turma, Integer> {
     List<Turma> findByProfessor(Usuario professor);
 
     // Método para RF06
-    List<Turma> findByAluno(Usuario aluno);
+    List<Turma> findByAlunos(Usuario aluno);
 }

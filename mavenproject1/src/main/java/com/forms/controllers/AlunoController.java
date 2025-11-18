@@ -37,7 +37,7 @@ public class AlunoController {
         // model.addAttribute("avaliacoesPendentes", avaliacoes);
         model.addAttribute("paginaTitulo", "Dashboard do Aluno");
 
-        return "aluno/dashboard"; 
+        return "turma/${turma.id}"; 
     }
 
 }

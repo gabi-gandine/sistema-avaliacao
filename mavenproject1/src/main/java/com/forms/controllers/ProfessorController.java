@@ -37,6 +37,7 @@ public class ProfessorController {
         model.addAttribute("usuario", professor);
         model.addAttribute("perfil", professor.getPerfil().getNome());
         model.addAttribute("paginaTitulo", "Dashboard do Professor");
+        model.addAttribute("turmasComoProfessor", professor.getTurmasComoProfessor());
 
         return "professor/dashboard";
     }

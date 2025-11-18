@@ -1,5 +1,7 @@
 package com.forms.models;
 
+import java.util.Set;
+
 /**
  *
  * @author gabriela
@@ -20,13 +22,13 @@ public class Turma{
     @Column(name="semestre")
     private int semestre;
     
-    @ManyToOne
-    @JoinColumn(name = "aluno", referencedColumnName = "id")
-    private Usuario aluno;
+    @ManyToMany
+    private Set<Usuario> alunos;
 
     @ManyToOne
     @JoinColumn(name = "professor", referencedColumnName = "id")
     private Usuario professor;
+    
     
     @ManyToOne
     @JoinColumn(name = "ucId", referencedColumnName = "id")
@@ -77,15 +79,22 @@ public class Turma{
     /**
      * @return the aluno
      */
-    public Usuario getAluno() {
-        return aluno;
+    public Set<Usuario> getAlunos() {
+        return alunos;
     }
 
     /**
      * @param aluno the alunos to set
      */
+    public void setAlunos(Set<Usuario> alunos) {
+        this.alunos = alunos;
+    }
+
     public void setAluno(Usuario aluno) {
-        this.aluno = aluno;
+        if (this.alunos == null) {
+            this.alunos = new java.util.HashSet<>();
+        }
+        this.alunos.add(aluno);
     }
 
     /**

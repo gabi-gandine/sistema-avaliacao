@@ -174,7 +174,6 @@
                     <th>ID</th>
                     <th>UC / Disciplina</th>
                     <th>Professor</th>
-                    <th>Aluno</th>
                     <th>Período</th>
                     <th>Ações</th>
                 </tr>
@@ -184,7 +183,6 @@
                     <td th:text="${turma.id}">1</td>
                     <td th:text="${turma.uc.nome}"></td>
                     <td th:text="${turma.professor.nome}"></td>
-                    <td th:text="${turma.aluno.nome}"></td>
                     <td th:text="${turma.ano + '/' + turma.semestre}"></td>
                     <td>
                         <a th:href="@{'/coordenador/turma/deletar/' + ${turma.id}}" class="action-link" onclick="return confirm('Tem certeza que deseja deletar esta turma?')">Deletar</a>

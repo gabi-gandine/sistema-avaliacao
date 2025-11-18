@@ -31,40 +31,44 @@
                 </form>
             </div>
         </div>
-
-        <h2>📚 Minhas Turmas</h2>
-        
-        <div th:if="${turmasComoProfessor == null or turmasComoProfessor.isEmpty()}" style="padding: 15px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;">
-            <p>Você não está associado(a) a nenhuma turma como professor(a) no momento.</p>
-        </div>
-        <div th:unless="${turmasComoProfessor == null or turmasComoProfessor.isEmpty()}">
+        <div>
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>UC / Disciplina</th>
+                        <th>Id</th>
                         <th>Período</th>
-                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="turma : ${turmasComoProfessor}">
-                        <td th:text="${turma.id}">1</td>
-                        <td th:text="${turma.uc.nome}"></td>
-                        <td th:text="${turma.ano + '/' + turma.semestre}"></td>
-                        <td>
-                            <a th:href="@{'/turma/' + ${turma.id}}" class="action-link" method="get">Ver mais</a>
-                        </td>
+                    <tr>
+                        <td th:text="${turmaId}"></td>
+                        <td th:text="${ano + '/' + semestre}"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        
-        <h2>📄 Avaliações em Andamento</h2>
-        <div style="padding: 15px; background-color: #e2f0ff; border: 1px solid #b3d9ff; border-radius: 4px;">
-            <p>Lista de avaliações criadas por você, com status (ativa/fechada) e link para relatórios (RF19).</p>
+        <h3>Alunos</h3>
+
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Matrícula</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="aluno : ${alunos}">
+                        <td th:text="${aluno.id}"></td>
+                        <td th:text="${aluno.nome}"></td>
+                        <td th:text="${aluno.email}"></td>
+                        <td th:text="${aluno.matriculaSiape}"></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        
     </div>
 </body>
 </html>
