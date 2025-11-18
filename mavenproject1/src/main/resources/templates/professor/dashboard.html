@@ -13,9 +13,27 @@
         .logout-btn { background-color: #dc3545; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.3s; }
         .logout-btn:hover { background-color: #c82333; }
         h1 { color: #28a745; font-weight: 300; }
-        .action-card { background-color: #e9ecef; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-        .action-card a { color: #007bff; text-decoration: none; font-weight: bold; }
-        .action-card a:hover { text-decoration: underline; }
+        
+        /* Estilo para o cartão de ação */
+        .action-card { background-color: #e9ecef; padding: 20px; border-radius: 5px; margin-bottom: 20px; border-left: 5px solid #28a745; }
+        .action-card h3 { margin-top: 0; color: #155724; }
+        .btn-criar { 
+            background-color: #28a745; 
+            color: white; 
+            padding: 10px 20px; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            font-weight: bold;
+            display: inline-block;
+        }
+        .btn-criar:hover { background-color: #218838; text-decoration: none; color: white;}
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .status-badge { padding: 3px 8px; border-radius: 10px; font-size: 0.85em; }
+        .ativa { background-color: #d4edda; color: #155724; }
+        .fechada { background-color: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
@@ -30,6 +48,44 @@
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 </form>
             </div>
+        </div>
+
+        <div class="action-card">
+            <h3>⚡ Gestão de Avaliações</h3>
+            <p>Crie novas avaliações para suas turmas e gerencie as questões.</p>
+            <a th:href="@{/professor/avaliacao/criar}" class="btn-criar">➕ Criar Nova Avaliação</a>
+        </div>
+
+        <h2>📄 Minhas Avaliações (Criadas)</h2>
+        
+        <div th:if="${avaliacoes == null or avaliacoes.isEmpty()}" style="padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px;">
+            <p>Nenhuma avaliação encontrada. Clique no botão acima para criar a primeira.</p>
+        </div>
+        
+        <div th:unless="${avaliacoes == null or avaliacoes.isEmpty()}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Turma</th>
+                        <th>Período</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="av : ${avaliacoes}">
+                        <td th:text="${av.id}">1</td>
+                        <td th:text="${av.titulo}">Prova 1</td>
+                        <td th:text="${av.turma.uc.nome}">Matemática</td>
+                        <td th:text="${#temporals.format(av.dataInicio, 'dd/MM')} + ' até ' + ${#temporals.format(av.dataFim, 'dd/MM')}"></td>
+                        <td>
+                            <a th:href="@{'/professor/avaliacao/' + ${av.id} + '/questoes'}">Editar Questões</a> |
+                            <a href="#">Relatório</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <h2>📚 Minhas Turmas</h2>
@@ -53,16 +109,11 @@
                         <td th:text="${turma.uc.nome}"></td>
                         <td th:text="${turma.ano + '/' + turma.semestre}"></td>
                         <td>
-                            <a th:href="@{'/turma/' + ${turma.id}}" class="action-link" method="get">Ver mais</a>
+                            <a th:href="@{'/turma/' + ${turma.id}}" class="action-link">Ver Alunos</a>
                         </td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-        
-        <h2>📄 Avaliações em Andamento</h2>
-        <div style="padding: 15px; background-color: #e2f0ff; border: 1px solid #b3d9ff; border-radius: 4px;">
-            <p>Lista de avaliações criadas por você, com status (ativa/fechada) e link para relatórios (RF19).</p>
         </div>
         
     </div>

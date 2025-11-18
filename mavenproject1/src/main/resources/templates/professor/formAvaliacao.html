@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Avaliação</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f4f4f9; 
+            color: #333;
+        }
+
+        .container { 
+            max-width: 600px; 
+            margin: 40px auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #28a745; 
+            padding-bottom: 15px; 
+            margin-bottom: 30px; 
+        }
+
+        h1 { 
+            margin: 0; 
+            color: #28a745; 
+            font-weight: 300; 
+            font-size: 1.8em;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #333; }
+
+        .form-group { margin-bottom: 20px; }
+
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        select,
+        textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #28a745;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+
+        textarea { 
+            resize: vertical; 
+            min-height: 100px; 
+            font-family: inherit;
+        }
+
+        .btn-submit { 
+            background-color: #28a745; 
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            font-size: 1.1em; 
+            width: 100%; 
+            transition: background-color 0.3s; 
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover { background-color: #218838; }
+
+        label.required::after {
+            content: " *";
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Nova Avaliação</h1>
+            <a th:href="@{/professor/dashboard}" class="back-link">← Cancelar</a>
+        </div>
+        
+        <form th:action="@{/professor/avaliacao/salvar}" th:object="${avaliacao}" method="post">
+            
+            <div class="form-group">
+                <label for="titulo" class="required">Título da Avaliação</label>
+                <input type="text" id="titulo" th:field="*{titulo}" placeholder="Ex: Prova Parcial de Cálculo I" required />
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição (Opcional)</label>
+                <textarea id="descricao" th:field="*{descricao}" placeholder="Instruções gerais para os alunos..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="turma" class="required">Turma Alvo</label>
+                <select id="turma" th:field="*{turma}" required>
+                    <option value="">Selecione a Turma...</option>
+                    <option th:each="t : ${turmas}" 
+                            th:value="${t.id}" 
+                            th:text="${t.uc.nome + ' - ' + t.ano + '/' + t.semestre}">
+                    </option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 20px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="dataInicio" class="required">Data de Início</label>
+                    <input type="datetime-local" id="dataInicio" th:field="*{dataInicio}" required />
+                </div>
+
+                <div class="form-group" style="flex: 1;">
+                    <label for="dataFim" class="required">Data de Término</label>
+                    <input type="datetime-local" id="dataFim" th:field="*{dataFim}" required />
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Salvar e Adicionar Questões ➝</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Questões</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f4f4f9; 
+            color: #333;
+        }
+
+        .container { 
+            max-width: 800px; 
+            margin: 30px auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #28a745; 
+            padding-bottom: 15px; 
+            margin-bottom: 30px; 
+        }
+
+        h1 { margin: 0; color: #28a745; font-weight: 300; font-size: 1.8em; }
+        .subtitle { color: #666; font-size: 1.1em; margin-top: 5px; }
+
+        .back-link {
+            text-decoration: none;
+            color: #6c757d;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #333; }
+
+        .questions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .question-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        
+        .question-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-color: #cbd3da;
+        }
+
+        .question-text { font-weight: 600; color: #2c3e50; font-size: 1.05em; }
+        .question-meta { font-size: 0.9em; color: #6c757d; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-aberta { background-color: #e2e6ea; color: #495057; }
+        .badge-multipla { background-color: #cce5ff; color: #004085; }
+
+        .add-section {
+            margin-top: 40px;
+            background-color: #fffbe9; 
+            padding: 25px;
+            border: 1px solid #ffeeba;
+            border-radius: 6px;
+        }
+
+        h3 { margin-top: 0; color: #856404; border-bottom: 1px dashed #ffeeba; padding-bottom: 10px; }
+
+        .form-row { display: flex; gap: 15px; align-items: flex-end; }
+        
+        .form-group { flex: 1; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 0.9em; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            height: 42px; 
+        }
+        .btn-add:hover { background-color: #218838; }
+
+        .empty-state {
+            text-align: center;
+            color: #adb5bd;
+            padding: 20px;
+            border: 2px dashed #e9ecef;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Gerenciar Questões</h1>
+                <div class="subtitle">Avaliação: <span th:text="${avaliacao.titulo}" style="color: #333; font-weight: bold;"></span></div>
+            </div>
+            <a th:href="@{/professor/dashboard}" class="back-link">← Voltar ao Dashboard</a>
+        </div>
+
+        <div th:if="${questoes.isEmpty()}" class="empty-state">
+            <p>Nenhuma questão cadastrada ainda.</p>
+        </div>
+
+        <ul th:unless="${questoes.isEmpty()}" class="questions-list">
+            <li th:each="q : ${questoes}" class="question-item">
+                <div>
+                    <div class="question-text">
+                        <span th:text="${q.ordem} + '.'"></span> 
+                        <span th:text="${q.texto}"></span>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge badge-aberta" 
+                          th:if="${q.tipo.name() == 'ABERTA'}">Aberta</span>
+                    
+                    <span class="badge badge-multipla" 
+                          th:if="${q.tipo.name() == 'MULTIPLA_ESCOLHA_UNICA'}">Múltipla (Única)</span>
+                          
+                    <span class="badge badge-multipla" 
+                          th:if="${q.tipo.name() == 'MULTIPLA_ESCOLHA_MULTIPLA'}">Múltipla (Várias)</span>
+                </div>
+            </li>
+        </ul>
+
+        <div class="add-section">
+            <h3>➕ Adicionar Nova Questão</h3>
+            
+            <form th:action="@{'/professor/avaliacao/' + ${avaliacao.id} + '/adicionar-questao'}" 
+                  th:object="${novaQuestao}" method="post">
+                
+                <div class="form-row">
+                    <div class="form-group" style="flex: 3;">
+                        <label>Enunciado da Questão:</label>
+                        <input type="text" th:field="*{texto}" placeholder="Ex: Qual a fórmula de Bhaskara?" required />
+                    </div>
+
+                    <div class="form-group" style="flex: 2;">
+                        <label>Tipo de Resposta:</label>
+                        <select th:field="*{tipo}">
+                            <option value="ABERTA">Aberta (Texto Livre)</option>
+                            <option value="MULTIPLA_ESCOLHA_UNICA">Múltipla Escolha (Única)</option>
+                            <option value="MULTIPLA_ESCOLHA_MULTIPLA">Múltipla Escolha (Várias)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-add">Adicionar</button>
+                </div>
+                <p style="font-size: 0.85em; color: #666; margin-top: 10px; margin-bottom: 0;">
+                    * Novas questões serão adicionadas automaticamente ao final da lista.
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
