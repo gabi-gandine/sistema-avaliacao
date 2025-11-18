@@ -6,22 +6,126 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${paginaTitulo}"></title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #28a745; padding-bottom: 10px; margin-bottom: 20px; }
-        .user-info { font-size: 1.1em; }
-        .logout-btn { background-color: #dc3545; color: white; padding: 8px 15px; border: none; cursor: pointer; border-radius: 4px; transition: background-color 0.3s; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f4f4f9; 
+            color: #333;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #28a745; 
+            padding-bottom: 15px; 
+            margin-bottom: 25px; 
+        }
+        .user-info { font-size: 1.0em; }
+        .logout-btn { 
+            background-color: #dc3545; 
+            color: white; 
+            padding: 8px 15px; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            transition: background-color 0.3s; 
+        }
         .logout-btn:hover { background-color: #c82333; }
-        h1 { color: #28a745; font-weight: 300; }
-        .action-card { background-color: #e9ecef; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-        .action-card a { color: #007bff; text-decoration: none; font-weight: bold; }
-        .action-card a:hover { text-decoration: underline; }
+        h1 { color: #28a745; font-weight: 300; font-size: 1.8em; margin: 0; }
+        
+        .back-link {
+            text-decoration: none;
+            color: #6c757d;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #333; }
+
+        .turma-card { 
+            background-color: #e6f7e9; 
+            padding: 25px; 
+            border-radius: 6px; 
+            margin-bottom: 30px; 
+            border-left: 5px solid #28a745; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .turma-card h3 { 
+            margin-top: 0; 
+            color: #155724; 
+            font-size: 1.3em;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #c3e6cb;
+            margin-bottom: 15px;
+        }
+        .turma-info p { 
+            margin: 8px 0; 
+            font-size: 1.05em; 
+            color: #555;
+        }
+        .turma-info strong { 
+            font-weight: 700; 
+            color: #333; 
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        h2 { 
+            color: #2c3e50; 
+            font-weight: 400; 
+            margin-top: 30px; 
+            margin-bottom: 15px; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        th, td { 
+            border: 1px solid #e9ecef; 
+            padding: 12px 15px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #f8f9fa; 
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #fcfcfc; 
+        }
+        tbody tr:hover {
+            background-color: #e6f7e9; 
+            cursor: default;
+        }
+        .empty-state {
+            text-align: center;
+            color: #adb5bd;
+            padding: 20px;
+            border: 2px dashed #e9ecef;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Painel de Controle Docente</h1>
+            <h1>Visualização da Turma: <span th:text="${turmaId}">[ID]</span></h1>
             <div class="user-info">
                 Bem-vindo(a), <strong th:text="${usuario.nome}">[Nome do Professor]</strong>! 
                 (Perfil: <span th:text="${perfil}"></span>)
@@ -31,32 +135,32 @@
                 </form>
             </div>
         </div>
-        <div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Período</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td th:text="${turmaId}"></td>
-                        <td th:text="${ano + '/' + semestre}"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <h3>Alunos</h3>
 
-        <div>
+        <a th:href="@{/professor/dashboard}" class="back-link">← Voltar ao Dashboard</a>
+
+        <div class="turma-card">
+            <h3>📝 Detalhes</h3>
+            <div class="turma-info">
+                 <p><strong>Período Letivo:</strong> <span th:text="${ano + '/' + semestre}"></span></p>
+                 <p><strong>UC / Disciplina:</strong> <span th:text="${turma.uc?.nome} ?: 'Nome da UC (Atualize o Controller)'"></span></p>
+                 <p><strong>Professor:</strong> <span th:text="${usuario.nome}"></span></p>
+            </div>
+        </div>
+
+        <h2>👥 Alunos Matriculados</h2>
+
+        <div th:if="${alunos.isEmpty()}" class="empty-state">
+            <p>Nenhum aluno matriculado nesta turma.</p>
+        </div>
+
+        <div th:unless="${alunos.isEmpty()}">
             <table>
                 <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Nome</th>
+                        <th>ID</th>
+                        <th>Nome do Aluno</th>
                         <th>Email</th>
-                        <th>Matrícula</th>
+                        <th>Matrícula/SIAPE</th>
                     </tr>
                 </thead>
                 <tbody>

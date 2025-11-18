@@ -23,8 +23,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/coordenador")
@@ -182,15 +184,15 @@ public class CoordenadorController {
     }
 
     // =========================================================================
-    // CRUD TURMA (ATUALIZADO PARA MÚLTIPLOS ALUNOS)
+    // CRUD TURMA
     // =========================================================================
     
     @PostMapping("/turma/salvar")
     public String salvarTurma(
-            @Valid @ModelAttribute("novaTurma") Turma turmaDadosBasicos, // Pega ano e semestre
+            @Valid @ModelAttribute("novaTurma") Turma turmaDadosBasicos, 
             BindingResult result,
             RedirectAttributes redirectAttributes,
-            @RequestParam("alunoIds") List<Integer> alunoIds, // <--- Recebe LISTA de IDs
+            @RequestParam(value = "alunoIds", required = false) List<Integer> alunoIds, // required=false para evitar erro se vazio
             @RequestParam("professorId") Integer professorId,
             @RequestParam("ucId") Integer ucId) {
         
@@ -200,36 +202,46 @@ public class CoordenadorController {
         }
         
         try {
-            // Busca as entidades fixas (Professor e UC)
+            // 1. Buscas as entidades fixas (Professor e UC)
             Usuario professor = usuarioService.buscarPorId(professorId)
                 .orElseThrow(() -> new IllegalArgumentException("Professor não encontrado."));
             
             UnidadeCurricular uc = ucService.buscarPorId(ucId)
                 .orElseThrow(() -> new IllegalArgumentException("Unidade Curricular não encontrada."));
 
-            int count = 0;
+            // 2. Cria a INSTÂNCIA da Turma APENAS UMA VEZ
+            Turma novaTurma = new Turma();
+            
+            // Se estiver editando uma turma existente (id não nulo), busque-a do banco
+            if (turmaDadosBasicos.getId() != null) {
+                novaTurma = turmaService.buscarPorId(turmaDadosBasicos.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada para edição."));
+            }
 
-            // Loop para criar uma turma (matrícula) para cada aluno selecionado
-            for (Integer alunoId : alunoIds) {
-                Usuario aluno = usuarioService.buscarPorId(alunoId).orElse(null);
+            // 3. Define os dados básicos
+            novaTurma.setAno(turmaDadosBasicos.getAno());
+            novaTurma.setSemestre(turmaDadosBasicos.getSemestre());
+            novaTurma.setProfessor(professor);
+            novaTurma.setUc(uc);
+
+            // 4. Gerencia a lista de alunos
+            if (alunoIds != null && !alunoIds.isEmpty()) {
+                Set<Usuario> alunosSet = new HashSet<>(); 
                 
-                if (aluno != null) {
-                    Turma novaTurma = new Turma();
-                    // Copia os dados comuns
-                    novaTurma.setAno(turmaDadosBasicos.getAno());
-                    novaTurma.setSemestre(turmaDadosBasicos.getSemestre());
-                    novaTurma.setProfessor(professor);
-                    novaTurma.setUc(uc);
-                    
-                    // Define o aluno específico
-                    novaTurma.setAluno(aluno);
-                    
-                    turmaService.salvar(novaTurma);
-                    count++;
+                for (Integer alunoId : alunoIds) {
+                    Usuario aluno = usuarioService.buscarPorId(alunoId).orElse(null);
+                    if (aluno != null) {
+                        alunosSet.add(aluno);
+                    }
                 }
+                novaTurma.setAlunos(alunosSet);
             }
             
-            redirectAttributes.addFlashAttribute("success", count + " aluno(s) matriculado(s) na turma com sucesso!");
+            // 5. Salva UMA VEZ a turma contendo VÁRIOS alunos
+            turmaService.salvar(novaTurma);
+            
+            int qtdAlunos = (novaTurma.getAlunos() != null) ? novaTurma.getAlunos().size() : 0;
+            redirectAttributes.addFlashAttribute("success", "Turma salva com sucesso com " + qtdAlunos + " aluno(s) matriculado(s)!");
             
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", "Erro: " + e.getMessage());
