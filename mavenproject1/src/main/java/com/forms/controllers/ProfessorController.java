@@ -1,17 +1,22 @@
 package com.forms.controllers;
 
 import com.forms.models.Avaliacao;
+import com.forms.models.OpcaoResposta;
 import com.forms.models.Questao;
+import com.forms.models.TipoQuestao;
 import com.forms.models.Turma;
 import com.forms.models.Usuario;
 import com.forms.repository.AvaliacaoRepository;
+import com.forms.repository.OpcaoRespostaRepository;
 import com.forms.repository.QuestaoRepository;
 import com.forms.repository.TurmaRepository;
 import com.forms.security.CustomUserDetailsService;
 
 import jakarta.validation.Valid;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,6 +48,9 @@ public class ProfessorController {
 
     @Autowired
     private QuestaoRepository questaoRepository;
+
+    @Autowired
+    private OpcaoRespostaRepository opcaoRepository;
     
     // @Autowired
     // private TurmaService turmaService;
@@ -126,13 +134,56 @@ public class ProfessorController {
                                 RedirectAttributes redirectAttributes) {
         
         Avaliacao avaliacao = avaliacaoRepository.findById(id).get();
-        questao.setAvaliacao(avaliacao);
+        Questao novaQuestao = new Questao();
         
-        questao.setOrdem(avaliacao.getQuestoes().size() + 1);
+        novaQuestao.setTexto(questao.getTexto());
+        novaQuestao.setTipo(questao.getTipo());
+        novaQuestao.setAvaliacao(avaliacao);
         
-        questaoRepository.save(questao);
+        novaQuestao.setOrdem(avaliacao.getQuestoes().size() + 1);
+        
+        questaoRepository.save(novaQuestao);
         
         return "redirect:/professor/avaliacao/" + id + "/questoes";
     }
 
+    @PostMapping("/avaliacao/questao/{id}/adicionar-opcao")
+    public String adicionarOpcao(@PathVariable Integer id, 
+                                @ModelAttribute OpcaoResposta opcao,
+                                RedirectAttributes redirectAttributes) {
+        
+        Questao questao = questaoRepository.findById(id).get();
+
+        OpcaoResposta op = new OpcaoResposta();
+
+        op.setIsCorreta(opcao.getIsCorreta());
+        op.setTexto(opcao.getTexto());
+        op.setQuestao(questao);
+        op.setOrdem(questao.getOpcoes().size() + 1);
+        
+        opcaoRepository.save(op);
+        
+        return "redirect:/professor/avaliacao/questao/" + id;
+    }
+
+    @GetMapping("/avaliacao/questao/{questaoId}")
+    public String gerenciarOpcoes(@PathVariable Integer questaoId, Model model) {
+        Questao q = questaoRepository.findById(questaoId).get();
+        boolean questaoCorreta = false;
+
+        if(q.getTipo() == TipoQuestao.MULTIPLA_ESCOLHA_UNICA) {
+            if(opcaoRepository.findByQuestaoAndIsCorreta(q, true).isPresent()) {
+                questaoCorreta = true;
+            }
+        }
+
+        model.addAttribute("questao", q);
+
+        model.addAttribute("opcoes", opcaoRepository.findByQuestao(q));
+        
+        model.addAttribute("opcao", new OpcaoResposta());
+        model.addAttribute("opcaoCorreta", questaoCorreta);
+        
+        return "professor/gerenciarOpcoes";
+    }
 }

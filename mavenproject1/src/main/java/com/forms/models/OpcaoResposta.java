@@ -21,6 +21,9 @@ public class OpcaoResposta {
     @Column(name = "ordem", nullable = false)
     private Integer ordem;
 
+    @Column(name= "isCorreta", nullable = false)
+    private boolean isCorreta;
+
     @ManyToOne
     @JoinColumn(name = "questaoId", referencedColumnName = "id", nullable = false)
     private Questao questao;
@@ -57,5 +60,13 @@ public class OpcaoResposta {
 
     public void setQuestao(Questao questao) {
         this.questao = questao;
+    }
+
+    public boolean getIsCorreta() {
+        return isCorreta;
+    }
+
+    public void setIsCorreta(boolean isCorreta) {
+        this.isCorreta = isCorreta;
     }
 }

@@ -110,4 +110,11 @@ public class Questao {
     public void setRespostas(Set<Resposta> respostas) {
         this.respostas = respostas;
     }
+
+    public void setOpcao(OpcaoResposta op) {
+        if (this.opcoes == null) {
+            this.opcoes = new java.util.HashSet<>();
+        }
+        this.opcoes.add(op);
+    }
 }
