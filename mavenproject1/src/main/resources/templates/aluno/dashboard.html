@@ -27,13 +27,15 @@
     </div>
     
     <hr/>
+        <h3 th:text="${teste}"></h3>
+
 
     <h2>📝 Avaliações Pendentes</h2>
     
     <div th:if="${avaliacoesPendentes != null and avaliacoesPendentes.isEmpty()}">
         <p>Você não possui nenhuma avaliação pendente no momento.</p>
     </div>
-    
+
     <div th:if="${avaliacoesPendentes != null}" th:each="avaliacao : ${avaliacoesPendentes}">
         <div class="card">
             <h3 th:text="${avaliacao.titulo}">Título da Avaliação</h3>

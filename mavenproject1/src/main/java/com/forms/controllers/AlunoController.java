@@ -1,7 +1,15 @@
 package com.forms.controllers;
 
+import com.forms.models.Turma;
 import com.forms.models.Usuario;
+import com.forms.models.Avaliacao;
+import com.forms.repository.AvaliacaoRepository;
 import com.forms.security.CustomUserDetailsService;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +26,9 @@ public class AlunoController {
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    private AvaliacaoRepository avaliacaoRepository;
     
     // @Autowired 
     // private AvaliacaoService avaliacaoService; 
@@ -30,14 +41,21 @@ public class AlunoController {
     public String dashboard(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         String email = userDetails.getUsername();
         Usuario aluno = userDetailsService.loadUsuarioByEmail(email);
+
+        List<Avaliacao> avaliacoesPendentes = new ArrayList<Avaliacao>();
+
+        for(Turma turma : aluno.getTurmasComoAluno()) {
+            LocalDateTime agora = LocalDateTime.now();
+            avaliacoesPendentes.addAll(avaliacaoRepository.findAvaliacoesAtivasPorTurma(turma.getId(), agora));
+        }
         
         // TODO: Implementar a lógica para buscar as avaliações ativas para este aluno (RF12)
 
         model.addAttribute("usuario", aluno);
-        // model.addAttribute("avaliacoesPendentes", avaliacoes);
+        model.addAttribute("avaliacoesPendentes", avaliacoesPendentes);
         model.addAttribute("paginaTitulo", "Dashboard do Aluno");
 
-        return "turma/${turma.id}"; 
+        return "aluno/dashboard"; 
     }
 
 }
