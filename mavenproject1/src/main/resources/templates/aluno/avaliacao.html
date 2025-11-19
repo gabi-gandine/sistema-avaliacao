@@ -12,13 +12,53 @@
             border: 1px solid #ccc; border-radius: 4px; 
         }
         .required { color: red; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f4f4f9; 
+            color: #333;
+        }
+
+        .container { 
+            max-width: 800px; 
+            margin: 30px auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid #28a745; 
+            padding-bottom: 15px; 
+            margin-bottom: 30px; 
+        }
+        .btn-add {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            height: 42px; 
+        }
+        .btn-add:hover { background-color: #218838; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 th:text="${avaliacao.titulo}">Título da Avaliação</h1>
-        <p th:text="${avaliacao.descricao}">Descrição da avaliação</p>
-        
+        <div class="header">
+            <div>
+                <h1 th:text="${avaliacao.titulo}">Título da Avaliação</h1>
+                <p class="subtitle" th:text="${avaliacao.descricao}">Descrição da avaliação</p>
+            </div>
+            <a th:href="@{/aluno/dashboard}" class="back-link">← Voltar ao Dashboard</a>
+        </div>
         <form action="#" 
               th:object="${avaliacao}" method="post">
             
@@ -76,7 +116,7 @@
                 </div>
             </div>
             
-            <button type="submit" class="btn btn-primary">Enviar Respostas</button>
+            <button type="submit" class="btn-add">Enviar Respostas</button>
         </form>
     </div>
 </body>
