@@ -16,17 +16,25 @@ public class Resposta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "questaoId", referencedColumnName = "id", nullable = false)
+    /**
+     * Questão que está sendo respondida
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_questao", referencedColumnName = "id", nullable = false)
     private Questao questao;
 
     /**
-     * RF03: SEMPRE rastreia qual usuário respondeu
-     * Mesmo em avaliações anônimas, o sistema sabe quem respondeu
+     * RF14, RF19: RespostaAgrupador é a camada de indireção para anonimato
+     * Respostas NÃO apontam diretamente para o usuário!
+     * Apontam para o RespostaAgrupador, que aponta para SubmissaoControle,
+     * que finalmente aponta para o usuário.
+     *
+     * Em formulários anônimos, relatórios NÃO seguem este link,
+     * mantendo assim o anonimato.
      */
-    @ManyToOne
-    @JoinColumn(name = "usuarioId", referencedColumnName = "id", nullable = false)
-    private Usuario usuario;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_resposta_agrupador", referencedColumnName = "id_resposta_agrupador", nullable = false)
+    private RespostaAgrupador respostaAgrupador;
 
     /**
      * Para questões abertas (TipoQuestao.ABERTA)
@@ -36,15 +44,16 @@ public class Resposta {
 
     /**
      * Para questões de múltipla escolha
-     * Relacionamento Many-to-Many pois uma resposta pode ter várias opções selecionadas
+     * Relacionamento Many-to-Many pois uma resposta pode ter várias alternativas selecionadas
+     * (questões do tipo MULTIPLA_ESCOLHA_MULTIPLA)
      */
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "resposta_opcao",
-        joinColumns = @JoinColumn(name = "respostaId"),
-        inverseJoinColumns = @JoinColumn(name = "opcaoId")
+        name = "resposta_alternativa_selecionada",
+        joinColumns = @JoinColumn(name = "id_resposta"),
+        inverseJoinColumns = @JoinColumn(name = "id_alternativa")
     )
-    private Set<OpcaoResposta> opcoesSelecionadas;
+    private Set<Alternativa> alternativasSelecionadas;
 
     @Column(name = "dataResposta", nullable = false)
     private LocalDateTime dataResposta;
@@ -87,12 +96,12 @@ public class Resposta {
         this.questao = questao;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public RespostaAgrupador getRespostaAgrupador() {
+        return respostaAgrupador;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setRespostaAgrupador(RespostaAgrupador respostaAgrupador) {
+        this.respostaAgrupador = respostaAgrupador;
     }
 
     public String getTextoResposta() {
@@ -103,12 +112,33 @@ public class Resposta {
         this.textoResposta = textoResposta;
     }
 
-    public Set<OpcaoResposta> getOpcoesSelecionadas() {
-        return opcoesSelecionadas;
+    public Set<Alternativa> getAlternativasSelecionadas() {
+        return alternativasSelecionadas;
     }
 
-    public void setOpcoesSelecionadas(Set<OpcaoResposta> opcoesSelecionadas) {
-        this.opcoesSelecionadas = opcoesSelecionadas;
+    public void setAlternativasSelecionadas(Set<Alternativa> alternativasSelecionadas) {
+        this.alternativasSelecionadas = alternativasSelecionadas;
+    }
+
+    /**
+     * Adiciona uma alternativa selecionada
+     */
+    public void adicionarAlternativaSelecionada(Alternativa alternativa) {
+        if (this.alternativasSelecionadas == null) {
+            this.alternativasSelecionadas = new java.util.HashSet<>();
+        }
+        this.alternativasSelecionadas.add(alternativa);
+    }
+
+    /**
+     * APENAS para auditoria: obtém o usuário que respondeu
+     * NÃO usar em relatórios de formulários anônimos!
+     */
+    public Usuario getUsuarioParaAuditoria() {
+        if (respostaAgrupador != null) {
+            return respostaAgrupador.getUsuarioParaAuditoria();
+        }
+        return null;
     }
 
     public LocalDateTime getDataResposta() {

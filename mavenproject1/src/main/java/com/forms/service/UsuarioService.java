@@ -128,4 +128,41 @@ public class UsuarioService {
                .filter(u -> u.getPerfil().getId().equals(perfil.getId()))
                .collect(java.util.stream.Collectors.toList());
     }
+
+    /**
+     * Salva um usuário (para controllers MVC)
+     * Se o usuário tem ID, atualiza. Se não, cria novo.
+     * IMPORTANTE: Para novos usuários, a senha já deve estar hasheada!
+     */
+    @Transactional
+    public Usuario salvar(Usuario usuario) {
+        // Verifica se é atualização ou criação
+        if (usuario.getId() != null && usuarioRepository.existsById(usuario.getId())) {
+            // Atualização
+            return atualizar(usuario);
+        } else {
+            // Criação - validar email
+            if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+                throw new IllegalArgumentException("Email já cadastrado no sistema");
+            }
+
+            // Validar perfil
+            if (usuario.getPerfil() == null || usuario.getPerfil().getId() == null) {
+                throw new IllegalArgumentException("Perfil é obrigatório");
+            }
+
+            Perfil perfil = perfilRepository.findById(usuario.getPerfil().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Perfil não encontrado"));
+
+            usuario.setPerfil(perfil);
+
+            // IMPORTANTE: A senha deve já estar hasheada!
+            // Se não estiver, use o método cadastrarUsuario(usuario, senhaPlana)
+            if (usuario.getSenhaHash() == null || usuario.getSenhaHash().isEmpty()) {
+                throw new IllegalArgumentException("Senha é obrigatória");
+            }
+
+            return usuarioRepository.save(usuario);
+        }
+    }
 }

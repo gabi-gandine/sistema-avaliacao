@@ -25,9 +25,17 @@ public class Turma{
     @ManyToMany
     private Set<Usuario> alunos;
 
-    @ManyToOne
-    @JoinColumn(name = "professor", referencedColumnName = "id")
-    private Usuario professor;
+    /**
+     * RF05: Turma pode ter múltiplos professores
+     * Relacionamento many-to-many através de tabela turma_professor
+     */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "turma_professor",
+        joinColumns = @JoinColumn(name = "id_turma"),
+        inverseJoinColumns = @JoinColumn(name = "id_usuario_professor")
+    )
+    private Set<Usuario> professores;
     
     
     @ManyToOne
@@ -98,24 +106,36 @@ public class Turma{
     }
 
     /**
-     * @return the professor
+     * @return the professores
      */
-    public Usuario getProfessore() {
-        return getProfessor();
+    public Set<Usuario> getProfessores() {
+        return professores;
     }
 
     /**
-     * @param professor the professores to set
+     * @param professores the professores to set
      */
-    public void setProfessor(Usuario professor) {
-        this.professor = professor;
+    public void setProfessores(Set<Usuario> professores) {
+        this.professores = professores;
     }
 
     /**
-     * @return the professor
+     * Adiciona um professor à turma
      */
-    public Usuario getProfessor() {
-        return professor;
+    public void adicionarProfessor(Usuario professor) {
+        if (this.professores == null) {
+            this.professores = new java.util.HashSet<>();
+        }
+        this.professores.add(professor);
+    }
+
+    /**
+     * Remove um professor da turma
+     */
+    public void removerProfessor(Usuario professor) {
+        if (this.professores != null) {
+            this.professores.remove(professor);
+        }
     }
 
     /**
@@ -132,5 +152,25 @@ public class Turma{
         this.uc = uc;
     }
 
-    
+    /**
+     * Retorna nome descritivo da turma
+     *
+     * @return Nome da turma no formato "Nome UC - Ano.Semestre"
+     */
+    public String getNome() {
+        StringBuilder nome = new StringBuilder();
+
+        if (uc != null && uc.getNome() != null) {
+            nome.append(uc.getNome());
+        } else {
+            nome.append("Turma");
+        }
+
+        nome.append(" - ");
+        nome.append(ano);
+        nome.append(".");
+        nome.append(semestre);
+
+        return nome.toString();
+    }
 }

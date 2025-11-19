@@ -30,19 +30,21 @@
         <h3 th:text="${teste}"></h3>
 
 
-    <h2>📝 Avaliações Pendentes</h2>
-    
+    <h2>📝 Formulários Pendentes</h2>
+
     <div th:if="${avaliacoesPendentes != null and avaliacoesPendentes.isEmpty()}">
-        <p>Você não possui nenhuma avaliação pendente no momento.</p>
+        <p>Você não possui nenhum formulário pendente no momento.</p>
     </div>
 
     <div th:if="${avaliacoesPendentes != null}" th:each="avaliacao : ${avaliacoesPendentes}">
         <div class="card">
-            <h3 th:text="${avaliacao.titulo}">Título da Avaliação</h3>
-            <p>Disciplina: <span th:text="${avaliacao.turma.uc.nome}"></span></p>
-            <p>Período: <span th:text="${#temporals.format(avaliacao.dataInicio, 'dd/MM/yyyy')} + ' até ' + ${#temporals.format(avaliacao.dataFim, 'dd/MM/yyyy')}"></span></p>
-            <p th:if="${avaliacao.anonima}">*Esta avaliação é **anônima**.</p>
-            <a th:href="@{'/aluno/avaliacao/' + ${avaliacao.id}}">Responder Avaliação</a>
+            <h3 th:text="${avaliacao.titulo}">Título do Formulário</h3>
+            <p>Processo: <span th:text="${avaliacao.processoAvaliativo?.nome ?: 'N/A'}"></span></p>
+            <p th:if="${avaliacao.dataInicio != null and avaliacao.dataFim != null}">
+                Período: <span th:text="${#temporals.format(avaliacao.dataInicio, 'dd/MM/yyyy')} + ' até ' + ${#temporals.format(avaliacao.dataFim, 'dd/MM/yyyy')}"></span>
+            </p>
+            <p th:if="${avaliacao.isAnonimo}">*Este formulário é **anônimo**.</p>
+            <a th:href="@{/aluno/formularios/{id}/responder(id=${avaliacao.id})}">Responder Formulário</a>
         </div>
     </div>
     

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Avaliação</title>
+    <title>Novo Formulário</title>
     <style>
         body { 
             font-family: 'Segoe UI', Arial, sans-serif; 
@@ -104,15 +104,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Nova Avaliação</h1>
+            <h1>Novo Formulário</h1>
             <a th:href="@{/professor/dashboard}" class="back-link">← Cancelar</a>
         </div>
-        
-        <form th:action="@{/professor/avaliacao/salvar}" th:object="${avaliacao}" method="post">
-            
+
+        <form th:action="@{/professor/formularios/salvar}" th:object="${formulario}" method="post">
+
             <div class="form-group">
-                <label for="titulo" class="required">Título da Avaliação</label>
-                <input type="text" id="titulo" th:field="*{titulo}" placeholder="Ex: Prova Parcial de Cálculo I" required />
+                <label for="titulo" class="required">Título do Formulário</label>
+                <input type="text" id="titulo" th:field="*{titulo}" placeholder="Ex: Avaliação de Disciplina" required />
             </div>
 
             <div class="form-group">
@@ -121,20 +121,24 @@
             </div>
 
             <div class="form-group">
-                <label for="turma" class="required">Turma Alvo</label>
-                <select id="turma" th:field="*{turma}" required>
-                    <option value="">Selecione a Turma...</option>
-                    <option th:each="t : ${turmas}" 
-                            th:value="${t.id}" 
-                            th:text="${t.uc.nome + ' - ' + t.ano + '/' + t.semestre}">
+                <label for="processoId">Processo Avaliativo (Opcional)</label>
+                <select id="processoId" name="processoId">
+                    <option value="">Selecione o Processo...</option>
+                    <option th:each="p : ${processos}"
+                            th:value="${p.id}"
+                            th:text="${p.nome}">
                     </option>
                 </select>
             </div>
 
+            <div class="form-group" style="display: flex; gap: 20px; align-items: center;">
+                <label style="margin-bottom: 0;">Formulário Anônimo</label>
+                <input type="checkbox" th:field="*{isAnonimo}" />
+            </div>
 
-            <div class="form-group" style="display: flex; gap: 20px">
-                <label>Anonima</label>
-                <input type="checkbox" th:field="*{anonima}" />
+            <div class="form-group" style="display: flex; gap: 20px; align-items: center;">
+                <label style="margin-bottom: 0;">Permite Edição</label>
+                <input type="checkbox" th:field="*{permiteEdicao}" />
             </div>
 
             <div style="display: flex; gap: 20px;">
@@ -149,7 +153,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-submit">Salvar e Adicionar Questões ➝</button>
+            <button type="submit" class="btn-submit">Salvar Formulário e Adicionar Questões ➝</button>
         </form>
     </div>
 </body>

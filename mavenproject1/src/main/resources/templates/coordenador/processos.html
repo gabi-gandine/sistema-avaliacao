@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Processos Avaliativos</title>
+</head>
+
+<th:block layout:fragment="styles">
+    <style>
+        .processo-card {
+            border-left: 5px solid #0d6efd;
+            transition: all 0.3s ease;
+        }
+        .processo-card.ativo {
+            border-left-color: #198754;
+        }
+        .processo-card.inativo {
+            border-left-color: #6c757d;
+        }
+        .processo-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+        .timeline-badge {
+            background-color: #0d6efd;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</th:block>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Cabeçalho -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="mb-0">
+                    <i class="bi bi-diagram-3 text-primary me-2"></i>
+                    Processos Avaliativos
+                </h2>
+                <p class="text-muted">Gerencie os processos de avaliação institucional</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalNovoProcesso">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Novo Processo
+                </button>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h2 class="mb-0" th:text="${totalProcessos}">8</h2>
+                        <small>Total de Processos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h2 class="mb-0" th:text="${processosAtivos}">3</h2>
+                        <small>Ativos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <h2 class="mb-0" th:text="${processosEmAndamento}">2</h2>
+                        <small>Em Andamento</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h2 class="mb-0" th:text="${totalFormularios}">45</h2>
+                        <small>Formulários Vinculados</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Período</label>
+                        <select name="periodo" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="ATUAL">Em Andamento</option>
+                            <option value="FUTURO">Futuros</option>
+                            <option value="PASSADO">Encerrados</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="ATIVO">Ativos</option>
+                            <option value="INATIVO">Inativos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bi bi-search me-1"></i>Filtrar
+                        </button>
+                        <a href="/coordenador/processos" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de Processos -->
+        <div th:if="${processos.empty}" class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Nenhum processo avaliativo cadastrado.
+            <a href="#" data-bs-toggle="modal" data-bs-target="#modalNovoProcesso" class="alert-link">Criar o primeiro processo</a>
+        </div>
+
+        <div th:each="processo : ${processos}" class="processo-card card mb-3"
+             th:classappend="${processo.ativo ? 'ativo' : 'inativo'}">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Título e Status -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h4 class="mb-1" th:text="${processo.nome}">Avaliação Institucional 2025.1</h4>
+                                <p class="text-muted mb-0" th:text="${processo.descricao}">Descrição do processo</p>
+                            </div>
+                            <div>
+                                <span th:if="${processo.ativo}" class="badge bg-success fs-6">
+                                    <i class="bi bi-check-circle me-1"></i>Ativo
+                                </span>
+                                <span th:unless="${processo.ativo}" class="badge bg-secondary fs-6">
+                                    <i class="bi bi-pause-circle me-1"></i>Inativo
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Timeline -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="timeline-badge">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                            <div class="ms-3">
+                                <small class="text-muted d-block">Período</small>
+                                <strong>
+                                    <span th:text="${#temporals.format(processo.dataInicio, 'dd/MM/yyyy')}">01/01/2025</span>
+                                    <i class="bi bi-arrow-right mx-2"></i>
+                                    <span th:text="${#temporals.format(processo.dataFim, 'dd/MM/yyyy')}">31/06/2025</span>
+                                </strong>
+                                <span th:if="${processo.isNoPeriodo()}" class="badge bg-warning text-dark ms-2">
+                                    Em Andamento
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Formulários Vinculados -->
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-2">
+                                <i class="bi bi-file-earmark-text me-1"></i>
+                                Formulários Vinculados: <strong th:text="${processo.formularios.size()}">3</strong>
+                            </small>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span th:each="form : ${processo.formularios}"
+                                      class="badge bg-info text-dark"
+                                      th:text="${form.titulo}">
+                                    Formulário 1
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="col-md-4">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/coordenador/processos/{id}/editar(id=${processo.id})}"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </a>
+
+                            <a th:href="@{/coordenador/processos/{id}/formularios(id=${processo.id})}"
+                               class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-link me-1"></i>Vincular Formulários
+                            </a>
+
+                            <button th:if="${processo.ativo}"
+                                    th:onclick="'desativarProcesso(' + ${processo.id} + ')'"
+                                    class="btn btn-warning btn-sm">
+                                <i class="bi bi-pause-circle me-1"></i>Desativar
+                            </button>
+
+                            <button th:unless="${processo.ativo}"
+                                    th:onclick="'ativarProcesso(' + ${processo.id} + ')'"
+                                    class="btn btn-success btn-sm">
+                                <i class="bi bi-play-circle me-1"></i>Ativar
+                            </button>
+
+                            <a th:href="@{/coordenador/relatorios/processo/{id}(id=${processo.id})}"
+                               class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-graph-up me-1"></i>Relatórios
+                            </a>
+
+                            <button th:onclick="'excluirProcesso(' + ${processo.id} + ')'"
+                                    class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i>Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Novo Processo -->
+        <div class="modal fade" id="modalNovoProcesso" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form action="/api/coordenador/processos" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Novo Processo Avaliativo
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nome do Processo <span class="text-danger">*</span></label>
+                                <input type="text" name="nome" class="form-control" required
+                                       placeholder="Ex: Avaliação Institucional 2025.1">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Descrição</label>
+                                <textarea name="descricao" class="form-control" rows="3"
+                                          placeholder="Descreva o objetivo deste processo..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Data de Início <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="dataInicio" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Data de Fim <span class="text-danger">*</span></label>
+                                    <input type="datetime-local" name="dataFim" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <small>Após criar o processo, você poderá vincular formulários a ele</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Criar Processo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            function ativarProcesso(id) {
+                fetch('/api/coordenador/processos/' + id + '/ativar', { method: 'POST' })
+                    .then(response => response.ok ? window.location.reload() : alert('Erro ao ativar processo'));
+            }
+
+            function desativarProcesso(id) {
+                if (confirm('Desativar este processo?')) {
+                    fetch('/api/coordenador/processos/' + id + '/desativar', { method: 'POST' })
+                        .then(response => response.ok ? window.location.reload() : alert('Erro ao desativar processo'));
+                }
+            }
+
+            function excluirProcesso(id) {
+                if (confirm('ATENÇÃO: Excluir este processo deletará todos os formulários vinculados e respostas!\n\nTem certeza?')) {
+                    fetch('/api/coordenador/processos/' + id, { method: 'DELETE' })
+                        .then(response => response.ok ? window.location.reload() : alert('Erro ao excluir processo'));
+                }
+            }
+            /*]]>*/
+        </script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}">Logs de Auditoria</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 th:text="${paginaTitulo}">Logs de Auditoria do Sistema</h1>
+        <hr>
+
+        <div class="mb-3">
+            <a th:href="@{/admin/dashboard}" class="btn btn-secondary">Voltar ao Dashboard</a>
+            <a th:href="@{/api/admin/auditoria/exportar}" class="btn btn-success">Exportar Logs</a>
+        </div>
+
+        <!-- Filtros -->
+        <div class="mb-4">
+            <h3>Filtros</h3>
+            <form th:action="@{/admin/auditoria}" method="get">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="usuarioId" class="form-label">Usuário</label>
+                        <select class="form-select" id="usuarioId" name="usuarioId">
+                            <option value="">Todos</option>
+                            <option th:each="usuario : ${usuarios}"
+                                    th:value="${usuario.id}"
+                                    th:text="${usuario.nome} + ' (' + ${usuario.email} + ')'"
+                                    th:selected="${usuarioId != null && usuario.id == usuarioId}">Usuário</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="acao" class="form-label">Ação</label>
+                        <select class="form-select" id="acao" name="acao">
+                            <option value="">Todas</option>
+                            <option value="CRIAR" th:selected="${acao == 'CRIAR'}">Criar</option>
+                            <option value="EDITAR" th:selected="${acao == 'EDITAR'}">Editar</option>
+                            <option value="DELETAR" th:selected="${acao == 'DELETAR'}">Deletar</option>
+                            <option value="LOGIN" th:selected="${acao == 'LOGIN'}">Login</option>
+                            <option value="LOGOUT" th:selected="${acao == 'LOGOUT'}">Logout</option>
+                            <option value="ACESSO" th:selected="${acao == 'ACESSO'}">Acesso</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="recurso" class="form-label">Recurso</label>
+                        <input type="text" class="form-control" id="recurso" name="recurso"
+                               th:value="${recurso}" placeholder="Ex: Usuario, Formulario">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="dataInicio" class="form-label">Data Início</label>
+                        <input type="datetime-local" class="form-control" id="dataInicio" name="dataInicio" th:value="${dataInicio}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="dataFim" class="form-label">Data Fim</label>
+                        <input type="datetime-local" class="form-control" id="dataFim" name="dataFim" th:value="${dataFim}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a th:href="@{/admin/auditoria}" class="btn btn-secondary">Limpar Filtros</a>
+            </form>
+        </div>
+
+        <hr>
+
+        <!-- Resumo -->
+        <div class="mb-4" th:if="${logs != null && !#lists.isEmpty(logs)}">
+            <div class="alert alert-info">
+                <strong>Total de registros:</strong> <span th:text="${#lists.size(logs)}">0</span>
+            </div>
+        </div>
+
+        <!-- Tabela de Logs -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Usuário</th>
+                        <th>Ação</th>
+                        <th>Recurso</th>
+                        <th>ID Recurso</th>
+                        <th>Detalhes</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td th:text="${#temporals.format(log.timestamp, 'dd/MM/yyyy HH:mm:ss')}">01/01/2024 10:00:00</td>
+                        <td>
+                            <span th:text="${log.usuario?.nome} ?: 'Sistema'">Usuário</span>
+                            <br>
+                            <small class="text-muted" th:text="${log.usuario?.email}">email@example.com</small>
+                        </td>
+                        <td>
+                            <span th:if="${log.acao == 'CRIAR'}" class="badge bg-success" th:text="${log.acao}">CRIAR</span>
+                            <span th:if="${log.acao == 'EDITAR'}" class="badge bg-warning" th:text="${log.acao}">EDITAR</span>
+                            <span th:if="${log.acao == 'DELETAR'}" class="badge bg-danger" th:text="${log.acao}">DELETAR</span>
+                            <span th:if="${log.acao == 'LOGIN'}" class="badge bg-info" th:text="${log.acao}">LOGIN</span>
+                            <span th:if="${log.acao == 'LOGOUT'}" class="badge bg-secondary" th:text="${log.acao}">LOGOUT</span>
+                            <span th:if="${log.acao == 'ACESSO'}" class="badge bg-primary" th:text="${log.acao}">ACESSO</span>
+                        </td>
+                        <td th:text="${log.tipoRecurso}">Recurso</td>
+                        <td th:text="${log.idRecurso} ?: '-'">123</td>
+                        <td>
+                            <small th:text="${log.detalhes} ?: '-'">Detalhes da ação...</small>
+                        </td>
+                        <td>
+                            <small th:text="${log.enderecoIp} ?: '-'">192.168.1.1</small>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mensagem se não houver logs -->
+        <div th:if="${logs == null || #lists.isEmpty(logs)}" class="alert alert-info">
+            Nenhum log de auditoria encontrado com os filtros aplicados.
+        </div>
+
+        <!-- Informações sobre auditoria -->
+        <div class="alert alert-warning mt-4">
+            <strong>Política de Retenção:</strong> Os logs de auditoria são mantidos por 365 dias.
+            Logs mais antigos são arquivados automaticamente para fins de conformidade.
+        </div>
+    </div>
+</body>
+</html>

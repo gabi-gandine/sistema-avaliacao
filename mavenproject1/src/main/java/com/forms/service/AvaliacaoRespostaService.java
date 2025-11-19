@@ -98,13 +98,6 @@ public class AvaliacaoRespostaService {
     }
 
     /**
-     * Lista todas as respostas de um usuário em uma avaliação
-     */
-    public List<Resposta> listarRespostasUsuario(Integer avaliacaoId, Integer usuarioId) {
-        return respostaRepository.findByAvaliacaoIdAndUsuarioId(avaliacaoId, usuarioId);
-    }
-
-    /**
      * RF03: Lista TODOS que responderam uma avaliação (tracking completo)
      * Usado por administradores/coordenadores para auditoria
      */

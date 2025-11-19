@@ -2,25 +2,32 @@ package com.forms.repository;
 
 import com.forms.models.Resposta;
 import com.forms.models.Questao;
-import com.forms.models.Usuario;
+import com.forms.models.RespostaAgrupador;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository para Resposta
+ * Queries adaptadas para trabalhar com RespostaAgrupador (novo modelo)
+ */
 public interface RespostaRepository extends JpaRepository<Resposta, Integer> {
 
-    List<Resposta> findByUsuario(Usuario usuario);
-
+    /**
+     * Busca todas as respostas de uma questão
+     */
     List<Resposta> findByQuestao(Questao questao);
 
-    Optional<Resposta> findByQuestaoAndUsuario(Questao questao, Usuario usuario);
+    /**
+     * NOVO: Busca resposta de um agrupador para uma questão específica
+     * Permite verificar se uma questão já foi respondida durante a submissão
+     */
+    Optional<Resposta> findByRespostaAgrupadorAndQuestao(RespostaAgrupador agrupador, Questao questao);
 
-    @Query("SELECT r FROM Resposta r WHERE r.questao.avaliacao.id = :avaliacaoId AND r.usuario.id = :usuarioId")
-    List<Resposta> findByAvaliacaoIdAndUsuarioId(@Param("avaliacaoId") Integer avaliacaoId, @Param("usuarioId") Integer usuarioId);
+    /**
+     * Busca todas as respostas de um RespostaAgrupador
+     */
+    List<Resposta> findByRespostaAgrupador(RespostaAgrupador agrupador);
 
-    @Query("SELECT COUNT(r) FROM Resposta r WHERE r.questao.avaliacao.id = :avaliacaoId")
-    Long countRespostasByAvaliacaoId(@Param("avaliacaoId") Integer avaliacaoId);
 }

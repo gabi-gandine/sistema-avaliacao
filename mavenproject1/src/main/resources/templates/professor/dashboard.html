@@ -51,37 +51,40 @@
         </div>
 
         <div class="action-card">
-            <h3>⚡ Gestão de Avaliações</h3>
-            <p>Crie novas avaliações para suas turmas e gerencie as questões.</p>
-            <a th:href="@{/professor/avaliacao/criar}" class="btn-criar">➕ Criar Nova Avaliação</a>
+            <h3>⚡ Gestão de Formulários</h3>
+            <p>Crie novos formulários para suas turmas e gerencie as questões.</p>
+            <a th:href="@{/professor/formularios/novo}" class="btn-criar">➕ Criar Novo Formulário</a>
         </div>
 
-        <h2>📄 Minhas Avaliações (Criadas)</h2>
-        
-        <div th:if="${avaliacoes == null or avaliacoes.isEmpty()}" style="padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px;">
-            <p>Nenhuma avaliação encontrada. Clique no botão acima para criar a primeira.</p>
+        <h2>📄 Meus Formulários (Criados)</h2>
+
+        <div th:if="${formularios == null or formularios.isEmpty()}" style="padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px;">
+            <p>Nenhum formulário encontrado. Clique no botão acima para criar o primeiro.</p>
         </div>
-        
-        <div th:unless="${avaliacoes == null or avaliacoes.isEmpty()}">
+
+        <div th:unless="${formularios == null or formularios.isEmpty()}">
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Título</th>
-                        <th>Turma</th>
                         <th>Período</th>
+                        <th>Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="av : ${avaliacoes}">
-                        <td th:text="${av.id}">1</td>
-                        <td th:text="${av.titulo}">Prova 1</td>
-                        <td th:text="${av.turma.uc.nome}">Matemática</td>
-                        <td th:text="${#temporals.format(av.dataInicio, 'dd/MM')} + ' até ' + ${#temporals.format(av.dataFim, 'dd/MM')}"></td>
+                    <tr th:each="form : ${formularios}">
+                        <td th:text="${form.id}">1</td>
+                        <td th:text="${form.titulo}">Formulário 1</td>
+                        <td th:text="${#temporals.format(form.dataInicio, 'dd/MM')} + ' até ' + ${#temporals.format(form.dataFim, 'dd/MM')}"></td>
                         <td>
-                            <a th:href="@{'/professor/avaliacao/' + ${av.id} + '/questoes'}">Editar Questões</a> |
-                            <a href="#">Relatório</a>
+                            <span th:if="${form.ativo}" class="status-badge ativa">Ativo</span>
+                            <span th:unless="${form.ativo}" class="status-badge fechada">Inativo</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/professor/formularios/{id}/questoes(id=${form.id})}">Editar Questões</a> |
+                            <a th:href="@{/professor/relatorios/{id}(id=${form.id})}">Relatório</a>
                         </td>
                     </tr>
                 </tbody>
@@ -89,27 +92,29 @@
         </div>
 
         <h2>📚 Minhas Turmas</h2>
-        
-        <div th:if="${turmasComoProfessor == null or turmasComoProfessor.isEmpty()}" style="padding: 15px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;">
+
+        <div th:if="${turmas == null or turmas.isEmpty()}" style="padding: 15px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;">
             <p>Você não está associado(a) a nenhuma turma como professor(a) no momento.</p>
         </div>
-        <div th:unless="${turmasComoProfessor == null or turmasComoProfessor.isEmpty()}">
+        <div th:unless="${turmas == null or turmas.isEmpty()}">
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>UC / Disciplina</th>
                         <th>Período</th>
+                        <th>Alunos</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="turma : ${turmasComoProfessor}">
+                    <tr th:each="turma : ${turmas}">
                         <td th:text="${turma.id}">1</td>
                         <td th:text="${turma.uc.nome}"></td>
                         <td th:text="${turma.ano + '/' + turma.semestre}"></td>
+                        <td th:text="${turma.alunos.size()}">0</td>
                         <td>
-                            <a th:href="@{'/turma/' + ${turma.id}}" class="action-link">Ver Alunos</a>
+                            <a th:href="@{/professor/turmas/{id}(id=${turma.id})}" class="action-link">Ver Detalhes</a>
                         </td>
                     </tr>
                 </tbody>

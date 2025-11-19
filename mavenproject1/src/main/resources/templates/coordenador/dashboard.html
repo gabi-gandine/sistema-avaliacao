@@ -33,20 +33,19 @@
         </div>
 
         <div class="action-card">
-            <h2>⚙️ Gestão e Configuração (RF04, RF05)</h2>
+            <h2>⚙️ Gestão e Configuração (RF04, RF05, RF06)</h2>
             <p>
                 <a th:href="@{/coordenador/gestao/cursos}">Gerenciar Cursos e Unidades Curriculares</a> |
-                <a href="#">Configurar Turmas e Professores</a> |
-                <a href="#">Definir Processos Avaliativos</a>
+                <a th:href="@{/coordenador/turmas}">Gerenciar Turmas</a> |
+                <a th:href="@{/coordenador/processos}">Processos Avaliativos</a>
             </p>
         </div>
 
         <div class="action-card">
             <h2>📊 Relatórios e Resultados (RF16)</h2>
             <p>
-                <a href="#">Relatórios Consolidados por Curso</a> | 
-                <a href="#">Relatórios Detalhados (Respostas Abertas)</a> |
-                <a href="#">Estatísticas de Avaliação (RF17)</a>
+                <a th:href="@{/coordenador/relatorios}">Relatórios Consolidados</a> |
+                <a th:href="@{/coordenador/processos}">Estatísticas de Processos</a>
             </p>
         </div>
         

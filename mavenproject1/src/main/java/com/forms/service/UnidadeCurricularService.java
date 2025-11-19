@@ -47,4 +47,34 @@ public class UnidadeCurricularService {
         }
         ucRepository.deleteById(id);
     }
+
+    /**
+     * Lista todas as Unidades Curriculares (alias para compatibilidade com controller).
+     */
+    public List<UnidadeCurricular> listarTodas() {
+        return listarTodos();
+    }
+
+    /**
+     * Cria uma nova Unidade Curricular (alias para salvar - compatibilidade com controller).
+     */
+    @Transactional
+    public UnidadeCurricular criar(UnidadeCurricular uc) {
+        return salvar(uc);
+    }
+
+    /**
+     * Atualiza uma Unidade Curricular existente (compatibilidade com controller).
+     */
+    @Transactional
+    public UnidadeCurricular atualizar(Integer id, UnidadeCurricular ucAtualizada) {
+        UnidadeCurricular ucExistente = buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Unidade Curricular não encontrada com ID: " + id));
+
+        // Atualiza os campos
+        ucExistente.setNome(ucAtualizada.getNome());
+        ucExistente.setCurso(ucAtualizada.getCurso());
+
+        return ucRepository.save(ucExistente);
+    }
 }

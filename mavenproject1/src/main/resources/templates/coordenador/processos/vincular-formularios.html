@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}">Vincular Formulários</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 th:text="${paginaTitulo}">Vincular Formulários ao Processo</h1>
+        <p>Processo: <strong th:text="${processo.nome}">Nome</strong></p>
+        <hr>
+
+        <!-- Formulários já vinculados -->
+        <div class="mb-4">
+            <h3>Formulários Vinculados (<span th:text="${#lists.size(formulariosVinculados)}">0</span>)</h3>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Criador</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="form : ${formulariosVinculados}">
+                        <td th:text="${form.titulo}">Título do Formulário</td>
+                        <td th:text="${form.criador.nome}">Professor</td>
+                        <td>
+                            <span th:if="${form.ativo}" class="badge bg-success">Ativo</span>
+                            <span th:unless="${form.ativo}" class="badge bg-secondary">Inativo</span>
+                        </td>
+                        <td>
+                            <form th:action="@{/api/coordenador/processos/{processoId}/formularios/{formId}(processoId=${processo.id},formId=${form.id})}" method="post" style="display: inline;">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Desvincular este formulário?')">Desvincular</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${#lists.isEmpty(formulariosVinculados)}" class="alert alert-info">
+                Nenhum formulário vinculado a este processo.
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Adicionar novos formulários -->
+        <div class="mb-4">
+            <h3>Vincular Novos Formulários</h3>
+            <form th:action="@{/api/coordenador/processos/{id}/formularios(id=${processo.id})}" method="post">
+                <div class="mb-3">
+                    <label for="formularios" class="form-label">Selecione os formulários para vincular</label>
+                    <select class="form-select" id="formularios" name="formularioIds" multiple size="10">
+                        <option th:each="form : ${todosFormularios}"
+                                th:value="${form.id}"
+                                th:text="${form.titulo} + ' (por ' + ${form.criador.nome} + ')'"
+                                th:disabled="${formulariosVinculados.contains(form)}">Formulário</option>
+                    </select>
+                    <small class="form-text">Segure Ctrl para selecionar múltiplos formulários</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Vincular Selecionados</button>
+            </form>
+        </div>
+
+        <a th:href="@{/coordenador/processos}" class="btn btn-secondary">Voltar para Processos</a>
+    </div>
+</body>
+</html>

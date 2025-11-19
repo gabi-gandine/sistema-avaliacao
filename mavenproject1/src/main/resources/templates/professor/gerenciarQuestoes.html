@@ -130,7 +130,7 @@
         <div class="header">
             <div>
                 <h1>Gerenciar Questões</h1>
-                <div class="subtitle">Avaliação: <span th:text="${avaliacao.titulo}" style="color: #333; font-weight: bold;"></span></div>
+                <div class="subtitle">Formulário: <span th:text="${formulario.titulo}" style="color: #333; font-weight: bold;"></span></div>
             </div>
             <a th:href="@{/professor/dashboard}" class="back-link">← Voltar ao Dashboard</a>
         </div>
@@ -154,34 +154,29 @@
                     <span class="badge badge-multipla" 
                           th:if="${q.tipo.name() == 'MULTIPLA_ESCOLHA_UNICA'}">Múltipla (Única)</span>
                           
-                    <span class="badge badge-multipla" 
+                    <span class="badge badge-multipla"
                           th:if="${q.tipo.name() == 'MULTIPLA_ESCOLHA_MULTIPLA'}">Múltipla (Várias)</span>
-                </div>
-                <div th:unless="${q.tipo.name() == 'ABERTA'}">
-                    <a th:href="@{'/professor/avaliacao/questao/' + ${q.id}}" 
-                        class='close' aria-hidden='true'>&times;</a>
                 </div>
             </li>
         </ul>
 
         <div class="add-section">
             <h3>➕ Adicionar Nova Questão</h3>
-            
-            <form th:action="@{'/professor/avaliacao/' + ${avaliacao.id} + '/adicionar-questao'}" 
-                  th:object="${novaQuestao}" method="post">
-                
+
+            <form th:action="@{/professor/formularios/{id}/questoes/adicionar(id=${formulario.id})}" method="post">
+
                 <div class="form-row">
                     <div class="form-group" style="flex: 3;">
                         <label>Enunciado da Questão:</label>
-                        <input type="text" th:field="*{texto}" placeholder="Ex: Qual a fórmula de Bhaskara?" required />
+                        <input type="text" name="texto" placeholder="Ex: Qual a fórmula de Bhaskara?" required />
                     </div>
 
                     <div class="form-group" style="flex: 2;">
                         <label>Tipo de Resposta:</label>
-                        <select th:field="*{tipo}">
+                        <select name="tipo">
                             <option value="ABERTA">Aberta (Texto Livre)</option>
-                            <option value="MULTIPLA_ESCOLHA_UNICA">Múltipla Escolha (Única)</option>
-                            <option value="MULTIPLA_ESCOLHA_MULTIPLA">Múltipla Escolha (Várias)</option>
+                            <option value="MULTIPLA_ESCOLHA">Múltipla Escolha (Única)</option>
+                            <option value="MULTIPLA_RESPOSTA">Múltipla Escolha (Várias)</option>
                         </select>
                     </div>
                     <button type="submit" class="btn-add">Adicionar</button>

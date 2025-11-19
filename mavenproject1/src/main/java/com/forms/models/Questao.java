@@ -35,12 +35,19 @@ public class Questao {
     @Column(name = "obrigatoria", nullable = false)
     private Boolean obrigatoria = true;
 
-    @ManyToOne
-    @JoinColumn(name = "avaliacaoId", referencedColumnName = "id", nullable = false)
-    private Avaliacao avaliacao;
+    /**
+     * Formulário ao qual esta questão pertence
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_formulario", referencedColumnName = "id_formulario", nullable = false)
+    private Formulario formulario;
 
-    @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL)
-    private Set<OpcaoResposta> opcoes;
+    /**
+     * Alternativas desta questão (para questões de múltipla escolha)
+     */
+    @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("ordem ASC")
+    private Set<Alternativa> alternativas;
 
     @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL)
     private Set<Resposta> respostas;
@@ -87,20 +94,31 @@ public class Questao {
         this.obrigatoria = obrigatoria;
     }
 
-    public Avaliacao getAvaliacao() {
-        return avaliacao;
+    public Formulario getFormulario() {
+        return formulario;
     }
 
-    public void setAvaliacao(Avaliacao avaliacao) {
-        this.avaliacao = avaliacao;
+    public void setFormulario(Formulario formulario) {
+        this.formulario = formulario;
     }
 
-    public Set<OpcaoResposta> getOpcoes() {
-        return opcoes;
+    public Set<Alternativa> getAlternativas() {
+        return alternativas;
     }
 
-    public void setOpcoes(Set<OpcaoResposta> opcoes) {
-        this.opcoes = opcoes;
+    public void setAlternativas(Set<Alternativa> alternativas) {
+        this.alternativas = alternativas;
+    }
+
+    /**
+     * Adiciona uma alternativa à questão
+     */
+    public void adicionarAlternativa(Alternativa alternativa) {
+        if (this.alternativas == null) {
+            this.alternativas = new java.util.HashSet<>();
+        }
+        this.alternativas.add(alternativa);
+        alternativa.setQuestao(this);
     }
 
     public Set<Resposta> getRespostas() {
@@ -111,10 +129,4 @@ public class Questao {
         this.respostas = respostas;
     }
 
-    public void setOpcao(OpcaoResposta op) {
-        if (this.opcoes == null) {
-            this.opcoes = new java.util.HashSet<>();
-        }
-        this.opcoes.add(op);
-    }
 }

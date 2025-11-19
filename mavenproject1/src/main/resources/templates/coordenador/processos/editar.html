@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}">Editar Processo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 th:text="${paginaTitulo}">Editar Processo Avaliativo</h1>
+        <hr>
+
+        <!-- Formulário de Edição -->
+        <form th:action="@{/api/coordenador/processos/{id}(id=${processo.id})}" method="post">
+            <input type="hidden" name="_method" value="PUT">
+
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome do Processo</label>
+                <input type="text" class="form-control" id="nome" name="nome" th:value="${processo.nome}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="descricao" class="form-label">Descrição</label>
+                <textarea class="form-control" id="descricao" name="descricao" rows="4" th:text="${processo.descricao}"></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="dataInicio" class="form-label">Data de Início</label>
+                    <input type="datetime-local" class="form-control" id="dataInicio" name="dataInicio" th:value="${processo.dataInicio}">
+                </div>
+                <div class="col-md-6">
+                    <label for="dataFim" class="form-label">Data de Término</label>
+                    <input type="datetime-local" class="form-control" id="dataFim" name="dataFim" th:value="${processo.dataFim}">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="cursoId" class="form-label">Curso</label>
+                    <select class="form-select" id="cursoId" name="cursoId">
+                        <option value="">Selecione...</option>
+                        <option th:each="curso : ${cursos}"
+                                th:value="${curso.id}"
+                                th:text="${curso.nome}"
+                                th:selected="${processo.curso != null && curso.id == processo.curso.id}">Curso</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="unidadeCurricularId" class="form-label">Unidade Curricular</label>
+                    <select class="form-select" id="unidadeCurricularId" name="unidadeCurricularId">
+                        <option value="">Selecione...</option>
+                        <option th:each="uc : ${unidades}"
+                                th:value="${uc.id}"
+                                th:text="${uc.nome}"
+                                th:selected="${processo.unidadeCurricular != null && uc.id == processo.unidadeCurricular.id}">UC</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <a th:href="@{/coordenador/processos}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

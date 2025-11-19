@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title th:text="${formulario.titulo}">Responder Formulário</title>
+</head>
+
+<th:block layout:fragment="styles">
+    <style>
+        .questao-card {
+            border-left: 4px solid #0d6efd;
+            transition: all 0.3s ease;
+        }
+        .questao-card.obrigatoria {
+            border-left-color: #dc3545;
+        }
+        .questao-card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+        }
+        .questao-numero {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .badge-obrigatoria {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        .progresso-barra {
+            height: 6px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #e9ecef;
+        }
+        .progresso-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0d6efd, #198754);
+            transition: width 0.3s ease;
+        }
+        .btn-salvar-rascunho {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            border-radius: 50px;
+            padding: 15px 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 999;
+        }
+        .likert-scale {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0;
+        }
+        .likert-option {
+            flex: 1;
+            text-align: center;
+            padding: 0 5px;
+        }
+        .likert-option input[type="radio"] {
+            display: none;
+        }
+        .likert-option label {
+            display: block;
+            padding: 15px 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: white;
+        }
+        .likert-option input[type="radio"]:checked + label {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+            transform: scale(1.05);
+        }
+        .likert-option label:hover {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+    </style>
+</th:block>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Barra de Progresso -->
+        <div class="progresso-barra">
+            <div class="progresso-fill" id="barraProgresso" style="width: 0%"></div>
+        </div>
+
+        <!-- Cabeçalho -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="mb-2" th:text="${formulario.titulo}">Título do Formulário</h2>
+                <p class="text-muted mb-3" th:text="${formulario.descricao}">Descrição do formulário</p>
+
+                <div class="d-flex gap-3 flex-wrap">
+                    <span class="badge bg-primary">
+                        <i class="bi bi-question-circle me-1"></i>
+                        <span th:text="${questoes.size()}">10</span> questões
+                    </span>
+                    <span th:if="${formulario.isAnonimo}" class="badge bg-info">
+                        <i class="bi bi-incognito me-1"></i>
+                        Anônimo
+                    </span>
+                    <span class="badge bg-warning text-dark" th:if="${totalObrigatorias > 0}">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <span th:text="${totalObrigatorias}">5</span> obrigatórias
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="/aluno/formularios" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Voltar
+                </a>
+            </div>
+        </div>
+
+        <!-- Formulário de Respostas -->
+        <form id="formRespostas" th:action="@{/aluno/formularios/{id}/responder(id=${formulario.id})}" method="post">
+            <input type="hidden" name="agrupadorId" th:value="${agrupadorId}">
+
+            <!-- Questões -->
+            <div th:each="questao, iterStat : ${questoes}" class="questao-container mb-4">
+                <div class="card questao-card" th:classappend="${questao.obrigatoria} ? 'obrigatoria' : ''">
+                    <div class="card-body">
+                        <!-- Cabeçalho da Questão -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="flex-grow-1">
+                                <span class="questao-numero me-2" th:text="${iterStat.index + 1}">1</span>
+                                <span th:text="${questao.texto}" class="fw-bold">Texto da questão?</span>
+                            </div>
+                            <span th:if="${questao.obrigatoria}" class="badge bg-danger badge-obrigatoria">
+                                Obrigatória
+                            </span>
+                        </div>
+
+                        <!-- QUESTÃO ABERTA -->
+                        <div th:if="${questao.tipo.name() == 'ABERTA'}">
+                            <textarea
+                                class="form-control"
+                                th:name="'respostas[' + ${questao.id} + '].textoResposta'"
+                                th:id="'questao_' + ${questao.id}"
+                                rows="5"
+                                placeholder="Digite sua resposta aqui..."
+                                th:required="${questao.obrigatoria}"
+                                th:data-questao-id="${questao.id}">
+                            </textarea>
+                            <div class="form-text">
+                                <span class="caracteres-count" th:id="'count_' + ${questao.id}">0</span> caracteres
+                            </div>
+                        </div>
+
+                        <!-- QUESTÃO MÚLTIPLA ESCOLHA ÚNICA -->
+                        <div th:if="${questao.tipo.name() == 'MULTIPLA_ESCOLHA_UNICA'}">
+                            <div class="form-check" th:each="alternativa : ${questao.alternativas}">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    th:name="'respostas[' + ${questao.id} + '].alternativasIds'"
+                                    th:id="'alt_' + ${alternativa.id}"
+                                    th:value="${alternativa.id}"
+                                    th:required="${questao.obrigatoria}"
+                                    th:data-questao-id="${questao.id}">
+                                <label class="form-check-label" th:for="'alt_' + ${alternativa.id}">
+                                    <span th:text="${alternativa.textoAlternativa}">Opção 1</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- QUESTÃO MÚLTIPLA ESCOLHA MÚLTIPLA -->
+                        <div th:if="${questao.tipo.name() == 'MULTIPLA_ESCOLHA_MULTIPLA'}">
+                            <div class="form-check" th:each="alternativa : ${questao.alternativas}">
+                                <input
+                                    class="form-check-input multipla-checkbox"
+                                    type="checkbox"
+                                    th:name="'respostas[' + ${questao.id} + '].alternativasIds'"
+                                    th:id="'alt_' + ${alternativa.id}"
+                                    th:value="${alternativa.id}"
+                                    th:data-questao-id="${questao.id}"
+                                    th:data-obrigatoria="${questao.obrigatoria}">
+                                <label class="form-check-label" th:for="'alt_' + ${alternativa.id}">
+                                    <span th:text="${alternativa.textoAlternativa}">Opção 1</span>
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Você pode selecionar múltiplas opções
+                            </small>
+                        </div>
+
+                        <!-- ESCALA LIKERT (Detectada automaticamente por alternativas com peso 1-5) -->
+                        <div th:if="${questao.isLikert}" class="likert-scale">
+                            <div class="likert-option" th:each="alternativa : ${questao.alternativas}">
+                                <input
+                                    type="radio"
+                                    th:name="'respostas[' + ${questao.id} + '].alternativasIds'"
+                                    th:id="'alt_' + ${alternativa.id}"
+                                    th:value="${alternativa.id}"
+                                    th:required="${questao.obrigatoria}"
+                                    th:data-questao-id="${questao.id}">
+                                <label th:for="'alt_' + ${alternativa.id}">
+                                    <div class="fw-bold mb-1" th:text="${alternativa.peso}">5</div>
+                                    <small th:text="${alternativa.textoAlternativa}">Concordo Totalmente</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="card bg-light">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="mb-3">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Revisar e Enviar
+                            </h5>
+                            <p class="text-muted mb-0">
+                                Certifique-se de ter respondido todas as questões obrigatórias antes de enviar.
+                            </p>
+                            <p class="text-muted small mb-0" th:if="${formulario.permiteEdicao}">
+                                <i class="bi bi-pencil me-1"></i>
+                                Você poderá editar suas respostas após o envio.
+                            </p>
+                        </div>
+                        <div class="col-md-4 d-grid gap-2">
+                            <button type="button" class="btn btn-outline-primary" onclick="salvarRascunho()">
+                                <i class="bi bi-save me-1"></i>
+                                Salvar Rascunho
+                            </button>
+                            <button type="submit" class="btn btn-success btn-lg" id="btnFinalizar">
+                                <i class="bi bi-send-fill me-1"></i>
+                                Enviar Respostas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            const totalQuestoes = /*[[${questoes.size()}]]*/ 10;
+            const questoesObrigatorias = /*[[${totalObrigatorias}]]*/ 5;
+
+            // Atualiza barra de progresso
+            function atualizarProgresso() {
+                let respondidas = 0;
+
+                // Conta questões abertas respondidas
+                document.querySelectorAll('textarea[data-questao-id]').forEach(textarea => {
+                    if (textarea.value.trim().length > 0) respondidas++;
+                });
+
+                // Conta questões de múltipla escolha respondidas
+                const questoesRadio = new Set();
+                document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                    questoesRadio.add(radio.dataset.questaoId);
+                });
+                respondidas += questoesRadio.size;
+
+                // Conta questões de múltipla escolha múltipla respondidas
+                const questoesCheckbox = new Set();
+                document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                    questoesCheckbox.add(checkbox.dataset.questaoId);
+                });
+                respondidas += questoesCheckbox.size;
+
+                const percentual = (respondidas / totalQuestoes) * 100;
+                document.getElementById('barraProgresso').style.width = percentual + '%';
+            }
+
+            // Contador de caracteres para questões abertas
+            document.querySelectorAll('textarea').forEach(textarea => {
+                const countElement = document.getElementById('count_' + textarea.dataset.questaoId);
+
+                textarea.addEventListener('input', function() {
+                    if (countElement) {
+                        countElement.textContent = this.value.length;
+                    }
+                    atualizarProgresso();
+                });
+            });
+
+            // Atualiza progresso em mudanças
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                input.addEventListener('change', atualizarProgresso);
+            });
+
+            // Validação customizada para questões obrigatórias com múltipla escolha múltipla
+            document.getElementById('formRespostas').addEventListener('submit', function(e) {
+                let invalidas = [];
+
+                // Valida checkboxes obrigatórios
+                const questoesCheckboxObrigatorias = new Set();
+                document.querySelectorAll('input[type="checkbox"][data-obrigatoria="true"]').forEach(checkbox => {
+                    questoesCheckboxObrigatorias.add(checkbox.dataset.questaoId);
+                });
+
+                questoesCheckboxObrigatorias.forEach(questaoId => {
+                    const checkboxes = document.querySelectorAll(`input[type="checkbox"][data-questao-id="${questaoId}"]`);
+                    const algumMarcado = Array.from(checkboxes).some(cb => cb.checked);
+
+                    if (!algumMarcado) {
+                        invalidas.push(questaoId);
+                    }
+                });
+
+                if (invalidas.length > 0) {
+                    e.preventDefault();
+                    alert('Por favor, responda todas as questões obrigatórias!');
+
+                    // Scroll para primeira questão não respondida
+                    const primeiraInvalida = document.querySelector(`[data-questao-id="${invalidas[0]}"]`);
+                    if (primeiraInvalida) {
+                        primeiraInvalida.closest('.questao-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        primeiraInvalida.focus();
+                    }
+                    return false;
+                }
+            });
+
+            // Salvar rascunho via AJAX
+            function salvarRascunho() {
+                const formData = new FormData(document.getElementById('formRespostas'));
+
+                fetch('/aluno/formularios/salvar-rascunho', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarMensagem('Rascunho salvo com sucesso!', 'success');
+                    } else {
+                        mostrarMensagem('Erro ao salvar rascunho', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    mostrarMensagem('Erro ao salvar rascunho', 'danger');
+                });
+            }
+
+            function mostrarMensagem(texto, tipo) {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${tipo} alert-dismissible fade show`;
+                alert.innerHTML = `
+                    ${texto}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').prepend(alert);
+
+                setTimeout(() => alert.remove(), 5000);
+            }
+
+            // Confirmação antes de sair
+            let formAlterado = false;
+            document.getElementById('formRespostas').addEventListener('change', function() {
+                formAlterado = true;
+            });
+
+            window.addEventListener('beforeunload', function(e) {
+                if (formAlterado) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
+            document.getElementById('formRespostas').addEventListener('submit', function() {
+                formAlterado = false;
+            });
+
+            // Inicializa progresso
+            atualizarProgresso();
+            /*]]>*/
+        </script>
+    </th:block>
+</body>
+</html>

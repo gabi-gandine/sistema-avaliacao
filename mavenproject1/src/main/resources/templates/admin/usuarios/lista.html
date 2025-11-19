@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}">Gerenciar Usuários</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 th:text="${paginaTitulo}">Gerenciar Usuários</h1>
+        <hr>
+
+        <div class="mb-3">
+            <a th:href="@{/admin/dashboard}" class="btn btn-secondary">Voltar ao Dashboard</a>
+            <a th:href="@{/admin/usuarios/novo}" class="btn btn-success">Novo Usuário</a>
+        </div>
+
+        <!-- Filtros -->
+        <div class="mb-4">
+            <h3>Filtros</h3>
+            <form th:action="@{/admin/usuarios}" method="get">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="perfilId" class="form-label">Perfil</label>
+                        <select class="form-select" id="perfilId" name="perfilId">
+                            <option value="">Todos</option>
+                            <option th:each="perfil : ${perfis}"
+                                    th:value="${perfil.id}"
+                                    th:text="${perfil.nome}"
+                                    th:selected="${perfilId != null && perfil.id == perfilId}">Perfil</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ativo" class="form-label">Status</label>
+                        <select class="form-select" id="ativo" name="ativo">
+                            <option value="">Todos</option>
+                            <option value="true" th:selected="${ativo != null && ativo}">Ativos</option>
+                            <option value="false" th:selected="${ativo != null && !ativo}">Inativos</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a th:href="@{/admin/usuarios}" class="btn btn-secondary">Limpar Filtros</a>
+            </form>
+        </div>
+
+        <hr>
+
+        <!-- Tabela de Usuários -->
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                    <th>Status</th>
+                    <th>Data de Criação</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="usuario : ${usuarios}">
+                    <td th:text="${usuario.nome}">Nome do Usuário</td>
+                    <td th:text="${usuario.email}">email@example.com</td>
+                    <td>
+                        <span class="badge bg-secondary" th:text="${usuario.perfil?.nome}">PERFIL</span>
+                    </td>
+                    <td>
+                        <span th:if="${usuario.ativo}" class="badge bg-success">Ativo</span>
+                        <span th:unless="${usuario.ativo}" class="badge bg-danger">Inativo</span>
+                    </td>
+                    <td th:text="${#temporals.format(usuario.dataCriacao, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</td>
+                    <td>
+                        <a th:href="@{/admin/usuarios/{id}/editar(id=${usuario.id})}" class="btn btn-sm btn-primary">Editar</a>
+                        <form th:if="${usuario.ativo}" th:action="@{/api/admin/usuarios/{id}/desativar(id=${usuario.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-warning">Desativar</button>
+                        </form>
+                        <form th:unless="${usuario.ativo}" th:action="@{/api/admin/usuarios/{id}/ativar(id=${usuario.id})}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-success">Ativar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Mensagem se não houver usuários -->
+        <div th:if="${#lists.isEmpty(usuarios)}" class="alert alert-info">
+            Nenhum usuário encontrado com os filtros aplicados.
+        </div>
+    </div>
+</body>
+</html>

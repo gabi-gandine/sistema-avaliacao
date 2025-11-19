@@ -16,6 +16,9 @@ public class TurmaService {
     @Autowired
     private TurmaRepository turmaRepository;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     /**
      * Salva ou atualiza uma Turma (RF05, RF06).
      */
@@ -61,5 +64,56 @@ public class TurmaService {
             throw new IllegalArgumentException("Turma não encontrada.");
         }
         turmaRepository.deleteById(id);
+    }
+
+    /**
+     * Cria uma nova turma (alias para salvar - compatibilidade com controller).
+     */
+    @Transactional
+    public Turma criar(Turma turma) {
+        return salvar(turma);
+    }
+
+    /**
+     * Atualiza uma turma existente (compatibilidade com controller).
+     */
+    @Transactional
+    public Turma atualizar(Integer id, Turma turmaAtualizada) {
+        Turma turmaExistente = buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada com ID: " + id));
+
+        // Atualiza os campos
+        turmaExistente.setAno(turmaAtualizada.getAno());
+        turmaExistente.setSemestre(turmaAtualizada.getSemestre());
+        turmaExistente.setUc(turmaAtualizada.getUc());
+
+        return turmaRepository.save(turmaExistente);
+    }
+
+    /**
+     * Vincula um professor a uma turma (RF05).
+     */
+    @Transactional
+    public Turma vincularProfessor(Integer turmaId, Usuario professor) {
+        Turma turma = buscarPorId(turmaId)
+                .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada com ID: " + turmaId));
+
+        turma.adicionarProfessor(professor);
+        return turmaRepository.save(turma);
+    }
+
+    /**
+     * Desvincula o professor de uma turma (RF05).
+     */
+    @Transactional
+    public Turma desvincularProfessor(Integer turmaId, Integer professorId) {
+        Turma turma = buscarPorId(turmaId)
+                .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada com ID: " + turmaId));
+
+        Usuario professor = usuarioService.buscarPorId(professorId)
+                .orElseThrow(() -> new IllegalArgumentException("Professor não encontrado com ID: " + professorId));
+
+        turma.removerProfessor(professor);
+        return turmaRepository.save(turma);
     }
 }

@@ -50,4 +50,26 @@ public class CursoService {
         }
         cursoRepository.deleteById(id);
     }
+
+    /**
+     * Cria um novo curso (alias para salvar - compatibilidade com controller).
+     */
+    @Transactional
+    public Curso criar(Curso curso) {
+        return salvar(curso);
+    }
+
+    /**
+     * Atualiza um curso existente (compatibilidade com controller).
+     */
+    @Transactional
+    public Curso atualizar(Integer id, Curso cursoAtualizado) {
+        Curso cursoExistente = buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Curso não encontrado com ID: " + id));
+
+        // Atualiza os campos
+        cursoExistente.setNome(cursoAtualizado.getNome());
+
+        return cursoRepository.save(cursoExistente);
+    }
 }

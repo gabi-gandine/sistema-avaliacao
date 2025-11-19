@@ -4,8 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
 /**
- * Representa uma opção de resposta para questões de múltipla escolha
+ * LEGADO: Representa uma opção de resposta para questões de múltipla escolha (modelo antigo)
+ *
+ * @deprecated Use {@link Alternativa} no lugar.
+ * Esta classe é mantida por compatibilidade com dados existentes.
+ * Novos desenvolvimentos devem usar a entidade Alternativa (que inclui campo 'peso' para scores).
  */
+@Deprecated
 @Entity
 @Table(name = "opcaoResposta")
 public class OpcaoResposta {

@@ -4,12 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * RF03: Registra quem respondeu cada avaliação, ainda que a resposta possa ser anônima
+ * LEGADO: Registra quem respondeu cada avaliação (modelo antigo)
  *
- * O sistema SEMPRE sabe quem respondeu,
+ * @deprecated Use {@link SubmissaoControle} no lugar.
+ * Esta classe é mantida por compatibilidade com dados existentes.
+ * Novos desenvolvimentos devem usar a entidade SubmissaoControle (que trabalha com Formulario).
+ *
+ * RF03: O sistema SEMPRE sabe quem respondeu,
  * mas pode optar por não mostrar essa informação nos relatórios
  * quando a avaliação for marcada como anônima.
  */
+@Deprecated
 @Entity
 @Table(name = "avaliacaoRespostaTracking",
        uniqueConstraints = @UniqueConstraint(columnNames = {"avaliacaoId", "usuarioId"}))

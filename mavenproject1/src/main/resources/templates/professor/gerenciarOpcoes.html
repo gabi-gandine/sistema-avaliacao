@@ -128,17 +128,17 @@
 <body>
     <div class="header">
         <div>
-            <h1>Gerenciar Questões</h1>
-            <div class="subtitle">Questao: <span th:text="${questao.texto}" style="color: #333; font-weight: bold;"></span></div>
+            <h1>Gerenciar Opções da Questão</h1>
+            <div class="subtitle">Questão: <span th:text="${questao.texto}" style="color: #333; font-weight: bold;"></span></div>
             <div>
-                <span class="badge badge-aberta" 
+                <span class="badge badge-aberta"
                         th:if="${questao.tipo.name() == 'ABERTA'}">Aberta</span>
-                
-                <span class="badge badge-multipla" 
-                        th:if="${questao.tipo.name() == 'MULTIPLA_ESCOLHA_UNICA'}">Múltipla (Única)</span>
-                        
-                <span class="badge badge-multipla" 
-                        th:if="${questao.tipo.name() == 'MULTIPLA_ESCOLHA_MULTIPLA'}">Múltipla (Várias)</span>
+
+                <span class="badge badge-multipla"
+                        th:if="${questao.tipo.name() == 'MULTIPLA_ESCOLHA'}">Múltipla Escolha</span>
+
+                <span class="badge badge-multipla"
+                        th:if="${questao.tipo.name() == 'MULTIPLA_RESPOSTA'}">Múltipla Resposta</span>
             </div>
         </div>
         <a th:href="@{/professor/dashboard}" class="back-link">← Voltar ao Dashboard</a>
@@ -152,7 +152,7 @@
             <li th:each="op : ${opcoes}" class="question-item">
                 <div>
                     <div class="question-text">
-                        <span th:text="${op.texto}"></span>
+                        <span th:text="${op.textoAlternativa}"></span>
                     </div>
                 </div>
                 <div>
@@ -168,27 +168,30 @@
 
         <div class="add-section">
             <h3>➕ Adicionar Nova Opção</h3>
-            
-            <form th:action="@{'/professor/avaliacao/questao/' + ${questao.id} + '/adicionar-opcao'}" 
-                  th:object="${opcao}" method="post">
-                
+
+            <form th:action="@{/professor/questoes/{id}/opcoes/adicionar(id=${questao.id})}" method="post">
+
                 <div class="form-row">
                     <div class="form-group" style="flex: 3;">
-                        <label>Opção:</label>
-                        <input type="text" th:field="*{texto}" placeholder="lorem ipsum" required />
+                        <label>Texto da Alternativa:</label>
+                        <input type="text" name="textoAlternativa" placeholder="Digite a opção de resposta..." required />
                     </div>
 
-                    <div th:unless="${opcaoCorreta}">
-                        <div class="form-group" style="flex: 2;">
-                            <label>É correta:</label>
-                            <input type="checkbox" th:field="*{isCorreta}" />
-                        </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Peso:</label>
+                        <input type="number" name="peso" step="0.01" placeholder="1.0" />
                     </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label>É correta:</label>
+                        <input type="checkbox" name="isCorreta" />
+                    </div>
+
                     <button type="submit" class="btn-add">Adicionar</button>
-                     
+
                 </div>
                 <p style="font-size: 0.85em; color: #666; margin-top: 10px; margin-bottom: 0;">
-                    * Novas questões serão adicionadas automaticamente ao final da lista.
+                    * Novas opções serão adicionadas automaticamente ao final da lista.
                 </p>
             </form>
 

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Formulários Disponíveis</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="mb-0">
+                    <i class="bi bi-list-check text-primary me-2"></i>
+                    Formulários Disponíveis
+                </h2>
+                <p class="text-muted">Selecione um formulário para responder</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="/aluno/turmas" class="btn btn-outline-primary">
+                    <i class="bi bi-people me-1"></i>
+                    Minhas Turmas
+                </a>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Turma</label>
+                        <select name="turmaId" class="form-select">
+                            <option value="">Todas as turmas</option>
+                            <option th:each="turma : ${minhasTurmas}"
+                                    th:value="${turma.id}"
+                                    th:text="${turma.nome}"
+                                    th:selected="${turma.id == turmaIdFiltro}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="PENDENTE">Pendentes</option>
+                            <option value="RESPONDIDO">Respondidos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bi bi-search me-1"></i>Filtrar
+                        </button>
+                        <a href="/aluno/formularios" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Limpar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de Formulários -->
+        <div th:if="${formularios.empty}" class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Nenhum formulário disponível no momento.
+        </div>
+
+        <div class="row">
+            <div class="col-md-6" th:each="form : ${formularios}">
+                <div class="card mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0" th:text="${form.titulo}">Título do Formulário</h5>
+                        <span th:if="${form.isAnonimo}" class="badge bg-info">
+                            <i class="bi bi-incognito me-1"></i>Anônimo
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted" th:text="${form.descricao}">Descrição do formulário</p>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    Período
+                                </small>
+                                <small th:text="${#temporals.format(form.dataInicio, 'dd/MM/yyyy')} + ' - ' + ${#temporals.format(form.dataFim, 'dd/MM/yyyy')}">
+                                    01/01/2025 - 31/01/2025
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="bi bi-question-circle me-1"></i>
+                                    Questões
+                                </small>
+                                <small th:text="${form.questoes.size()}">10</small>
+                            </div>
+                        </div>
+
+                        <!-- Status e Ações -->
+                        <div th:if="${form.jaRespondido}" class="alert alert-success py-2 mb-2">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Você já respondeu este formulário
+                            <span th:if="${form.podeEditar}">
+                                <br><small>Você pode editar sua resposta</small>
+                            </span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a th:if="${!form.jaRespondido}"
+                               th:href="@{/aluno/formularios/{id}/responder(id=${form.id})}"
+                               class="btn btn-primary">
+                                <i class="bi bi-pencil-square me-1"></i>
+                                Responder Agora
+                            </a>
+
+                            <a th:if="${form.jaRespondido and form.podeEditar}"
+                               th:href="@{/aluno/formularios/{id}/editar(id=${form.id})}"
+                               class="btn btn-warning">
+                                <i class="bi bi-pencil me-1"></i>
+                                Editar Resposta
+                            </a>
+
+                            <a th:if="${form.jaRespondido and !form.isAnonimo}"
+                               th:href="@{/aluno/minhas-respostas/{id}(id=${form.id})}"
+                               class="btn btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>
+                                Ver Minhas Respostas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

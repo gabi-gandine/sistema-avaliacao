@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}">Relatórios Consolidados</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 th:text="${paginaTitulo}">Relatórios Consolidados</h1>
+        <hr>
+
+        <!-- Filtros -->
+        <div class="mb-4">
+            <h3>Filtros</h3>
+            <form th:action="@{/coordenador/relatorios}" method="get">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="processoId" class="form-label">Processo Avaliativo</label>
+                        <select class="form-select" id="processoId" name="processoId">
+                            <option value="">Todos</option>
+                            <option th:each="proc : ${processos}"
+                                    th:value="${proc.id}"
+                                    th:text="${proc.nome}"
+                                    th:selected="${processoId != null && proc.id == processoId}">Processo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cursoId" class="form-label">Curso</label>
+                        <select class="form-select" id="cursoId" name="cursoId">
+                            <option value="">Todos</option>
+                            <option th:each="curso : ${cursos}"
+                                    th:value="${curso.id}"
+                                    th:text="${curso.nome}"
+                                    th:selected="${cursoId != null && curso.id == cursoId}">Curso</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a th:href="@{/coordenador/relatorios}" class="btn btn-secondary">Limpar Filtros</a>
+            </form>
+        </div>
+
+        <hr>
+
+        <!-- Resumo Geral -->
+        <div class="mb-4">
+            <h3>Resumo Geral</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total de Processos</h5>
+                            <p class="card-text" th:text="${#lists.size(processos)}">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total de Cursos</h5>
+                            <p class="card-text" th:text="${#lists.size(cursos)}">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Dados -->
+        <div class="mb-4">
+            <h3>Dados Detalhados</h3>
+            <p class="text-muted">Selecione filtros acima para visualizar dados específicos</p>
+
+            <div class="alert alert-info" th:if="${processoId == null && cursoId == null}">
+                Utilize os filtros acima para visualizar relatórios consolidados por processo ou curso.
+            </div>
+
+            <!-- Aqui seriam exibidos os dados filtrados -->
+            <!-- Por enquanto, apenas estrutura básica -->
+        </div>
+
+        <a th:href="@{/coordenador/dashboard}" class="btn btn-secondary">Voltar ao Dashboard</a>
+    </div>
+</body>
+</html>

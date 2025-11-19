@@ -7,9 +7,13 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * Representa um formulário de avaliação
- * Pode ser anônimo ou identificado
+ * LEGADO: Representa um formulário de avaliação (modelo antigo)
+ *
+ * @deprecated Use {@link Formulario} no lugar.
+ * Esta classe é mantida por compatibilidade com dados existentes.
+ * Novos desenvolvimentos devem usar a entidade Formulario.
  */
+@Deprecated
 @Entity
 @Table(name = "avaliacao")
 public class Avaliacao {
@@ -53,9 +57,6 @@ public class Avaliacao {
     @ManyToOne
     @JoinColumn(name = "criadorId", referencedColumnName = "id", nullable = false)
     private Usuario criador;
-
-    @OneToMany(mappedBy = "avaliacao", cascade = CascadeType.ALL)
-    private Set<Questao> questoes;
 
     @OneToMany(mappedBy = "avaliacao", cascade = CascadeType.ALL)
     private Set<AvaliacaoRespostaTracking> respostasTracking;
@@ -149,14 +150,6 @@ public class Avaliacao {
 
     public void setCriador(Usuario criador) {
         this.criador = criador;
-    }
-
-    public Set<Questao> getQuestoes() {
-        return questoes;
-    }
-
-    public void setQuestoes(Set<Questao> questoes) {
-        this.questoes = questoes;
     }
 
     public Set<AvaliacaoRespostaTracking> getRespostasTracking() {

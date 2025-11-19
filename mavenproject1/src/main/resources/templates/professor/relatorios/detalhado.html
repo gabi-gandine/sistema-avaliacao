@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginaTitulo}">Relatório Detalhado</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 th:text="${paginaTitulo}">Relatório Detalhado</h1>
+        <hr>
+
+        <!-- Cabeçalho do Relatório -->
+        <div class="mb-4">
+            <h3 th:text="${formulario.titulo}">Título do Formulário</h3>
+            <p th:text="${formulario.descricao}">Descrição do formulário...</p>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Status:</strong>
+                    <span th:if="${formulario.ativo}" class="badge bg-success">Ativo</span>
+                    <span th:unless="${formulario.ativo}" class="badge bg-secondary">Inativo</span>
+                </div>
+                <div class="col-md-3">
+                    <strong>Tipo:</strong>
+                    <span th:if="${formulario.isAnonimo}" class="badge bg-warning">Anônimo</span>
+                    <span th:unless="${formulario.isAnonimo}" class="badge bg-info">Identificado</span>
+                </div>
+                <div class="col-md-3">
+                    <strong>Total de Respostas:</strong>
+                    <span class="badge bg-primary" th:text="${totalRespostas}">0</span>
+                </div>
+                <div class="col-md-3">
+                    <a th:href="@{/api/relatorios/formulario/{id}/exportar(id=${formulario.id})}" class="btn btn-sm btn-success">Exportar Dados</a>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Resumo Estatístico -->
+        <div class="mb-4">
+            <h3>Resumo Estatístico</h3>
+            <p class="text-muted">Dados detalhados disponíveis via API REST: <code>/api/relatorios/formulario/{id}/estatisticas</code></p>
+
+            <div class="alert alert-info">
+                <strong>Nota:</strong> Para visualizar gráficos e estatísticas detalhadas, utilize a API REST ou exporte os dados.
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- Questões e Respostas -->
+        <div class="mb-4">
+            <h3>Questões do Formulário</h3>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Ordem</th>
+                        <th>Questão</th>
+                        <th>Tipo</th>
+                        <th>Obrigatória</th>
+                        <th>Respostas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="questao : ${formulario.questoes}">
+                        <td th:text="${questao.ordem}">1</td>
+                        <td th:text="${questao.texto}">Pergunta...</td>
+                        <td th:text="${questao.tipo}">ABERTA</td>
+                        <td>
+                            <span th:if="${questao.obrigatoria}" class="badge bg-warning">Sim</span>
+                            <span th:unless="${questao.obrigatoria}" class="badge bg-secondary">Não</span>
+                        </td>
+                        <td>
+                            <!-- Link para detalhes das respostas desta questão -->
+                            <a th:href="@{/api/relatorios/formulario/{formId}/questao/{questaoId}(formId=${formulario.id},questaoId=${questao.id})}" class="btn btn-sm btn-primary">Ver Respostas</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr>
+
+        <!-- Filtrar por Turma (se houver) -->
+        <div class="mb-4" th:if="${turmaId != null}">
+            <h3>Filtrado por Turma</h3>
+            <p>Relatório filtrado para turma específica</p>
+        </div>
+
+        <a th:href="@{/professor/relatorios}" class="btn btn-secondary">Voltar para Relatórios</a>
+    </div>
+</body>
+</html>

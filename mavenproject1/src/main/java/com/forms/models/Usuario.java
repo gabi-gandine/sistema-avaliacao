@@ -63,7 +63,11 @@ public class Usuario{
     @ManyToMany()
     private Set<Turma> turmasComoAluno;
 
-    @OneToMany(mappedBy = "professor")
+    /**
+     * RF05: Turmas onde este usuário é professor
+     * Lado inverso do relacionamento many-to-many
+     */
+    @ManyToMany(mappedBy = "professores")
     private Set<Turma> turmasComoProfessor;
 
     /**

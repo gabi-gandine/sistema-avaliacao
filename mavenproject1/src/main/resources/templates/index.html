@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{fragments/layout}">
+<head>
+    <title>Sistema de Avaliação</title>
+</head>
+
+<th:block layout:fragment="styles">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            border-radius: 10px;
+            margin-bottom: 40px;
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</th:block>
+
+<body>
+    <div layout:fragment="content">
+        <!-- Hero Section -->
+        <div class="hero-section text-center">
+            <div class="container">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="bi bi-clipboard-data me-3"></i>
+                    Sistema de Avaliação Institucional
+                </h1>
+                <p class="lead mb-4">
+                    Plataforma completa para criação, gestão e análise de formulários de avaliação
+                </p>
+
+                <div sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="btn btn-light btn-lg me-2">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Entrar
+                    </a>
+                    <a href="/cadastro" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Cadastrar
+                    </a>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" class="row mt-4">
+                    <div class="col-md-4" sec:authorize="hasRole('ALUNO')">
+                        <a href="/aluno/formularios" class="btn btn-light btn-lg w-100">
+                            <i class="bi bi-list-check me-2"></i>
+                            Meus Formulários
+                        </a>
+                    </div>
+                    <div class="col-md-4" sec:authorize="hasAnyRole('PROFESSOR', 'COORDENADOR', 'ADMINISTRADOR')">
+                        <a href="/professor/formularios" class="btn btn-light btn-lg w-100">
+                            <i class="bi bi-file-earmark-text me-2"></i>
+                            Gerenciar Formulários
+                        </a>
+                    </div>
+                    <div class="col-md-4" sec:authorize="hasAnyRole('COORDENADOR', 'ADMINISTRADOR')">
+                        <a href="/coordenador/processos" class="btn btn-light btn-lg w-100">
+                            <i class="bi bi-diagram-3 me-2"></i>
+                            Processos Avaliativos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-shield-check text-primary feature-icon"></i>
+                        <h4>Anonimato Garantido</h4>
+                        <p class="text-muted">
+                            Sistema preserva a identidade dos respondentes em formulários anônimos (RF11, RF14, RF19)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-graph-up text-success feature-icon"></i>
+                        <h4>Relatórios com Scores</h4>
+                        <p class="text-muted">
+                            Cálculo automático de scores baseado em pesos configuráveis (RF17)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-check text-info feature-icon"></i>
+                        <h4>Múltiplos Tipos</h4>
+                        <p class="text-muted">
+                            Questões abertas, múltipla escolha, likert e mais (RF08, RF09)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-clock-history text-warning feature-icon"></i>
+                        <h4>Controle de Período</h4>
+                        <p class="text-muted">
+                            Define quando formulários ficam disponíveis e controla prazos (RF02)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-pencil-square text-danger feature-icon"></i>
+                        <h4>Edição Opcional</h4>
+                        <p class="text-muted">
+                            Permite que usuários editem suas respostas quando configurado (RF12, RF13)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-journal-text text-secondary feature-icon"></i>
+                        <h4>Auditoria Completa</h4>
+                        <p class="text-muted">
+                            Todas as ações são registradas para rastreabilidade (RNF04)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row text-center mb-5" sec:authorize="isAuthenticated()">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h2 th:text="${totalProcessos ?: 0}">0</h2>
+                        <small>Processos Ativos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h2 th:text="${totalFormularios ?: 0}">0</h2>
+                        <small>Formulários</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h2 th:text="${totalRespostas ?: 0}">0</h2>
+                        <small>Respostas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <h2 th:text="${totalUsuarios ?: 0}">0</h2>
+                        <small>Usuários</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h4 class="mb-3">
+                    <i class="bi bi-robot me-2"></i>
+                    Generated with Claude Code
+                </h4>
+                <p class="text-muted mb-0">
+                    Sistema desenvolvido com Spring Boot 3.5.6, JPA/Hibernate, MySQL e Thymeleaf
+                </p>
+                <p class="text-muted small mb-0">
+                    Implementando requisitos RF01-RF20 e RNF01-RNF06
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
