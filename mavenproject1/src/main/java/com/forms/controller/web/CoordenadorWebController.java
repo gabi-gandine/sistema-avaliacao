@@ -239,16 +239,21 @@ public class CoordenadorWebController {
      * Gestão de cursos
      * RF04
      */
+
     @GetMapping("/gestao/cursos")
     public String gestaoCursos(Model model) {
         List<Curso> cursos = cursoService.listarTodos();
         List<UnidadeCurricular> unidades = unidadeCurricularService.listarTodas();
 
         model.addAttribute("cursos", cursos);
-        model.addAttribute("unidades", unidades);
-        model.addAttribute("paginaTitulo", "Gestão de Cursos");
+        model.addAttribute("ucs", unidades); 
 
-        return "coordenador/cursos/lista";
+        model.addAttribute("novoCurso", new Curso());
+        model.addAttribute("novaUC", new UnidadeCurricular());
+
+        model.addAttribute("paginaTitulo", "Gestão de Cursos e Unidades Curriculares");
+
+        return "coordenador/gestaoCursos";
     }
 
     /**
@@ -263,6 +268,61 @@ public class CoordenadorWebController {
         model.addAttribute("paginaTitulo", "Processos Avaliativos");
 
         return "coordenador/processos/lista";
+    }
+
+    /**
+     * Salva ou atualiza um Curso (RF04)
+     */
+    @PostMapping("/curso/salvar")
+    public String salvarCurso(@ModelAttribute Curso novoCurso, RedirectAttributes ra) {
+        try {
+            cursoService.salvar(novoCurso); 
+            ra.addFlashAttribute("mensagemSucesso", "Curso salvo com sucesso!");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("mensagemErro", "Erro ao salvar curso: " + e.getMessage());
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensagemErro", "Erro interno ao salvar curso: " + e.getMessage());
+        }
+        return "redirect:/coordenador/gestao/cursos";
+    }
+
+    /**
+     * DELETAR CURSO
+     */
+    @PostMapping("/curso/deletar/{id}")
+    public String deletarCurso(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            cursoService.deletar(id);
+            ra.addFlashAttribute("mensagemSucesso", "Curso deletado com sucesso!");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("mensagemErro", "Erro ao deletar curso: " + e.getMessage());
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensagemErro", "Erro interno ao deletar curso: " + e.getMessage());
+        }
+        return "redirect:/coordenador/gestao/cursos";
+    }
+    
+    /**
+     * Salva ou atualiza uma Unidade Curricular (RF04)
+     * Recebe o ID do curso separadamente (@RequestParam) para vincular corretamente.
+     */
+    @PostMapping("/uc/salvar")
+    public String salvarUC(@ModelAttribute UnidadeCurricular novaUC, @RequestParam Integer cursoId, RedirectAttributes ra) {
+        try {
+            Curso curso = cursoService.buscarPorId(cursoId)
+                    .orElseThrow(() -> new IllegalArgumentException("Curso não encontrado para vincular a UC."));
+
+            novaUC.setCurso(curso);
+            
+            // Delega a lógica de salvar/atualizar para o Service
+            unidadeCurricularService.salvar(novaUC);
+            ra.addFlashAttribute("mensagemSucesso", "Unidade Curricular salva com sucesso!");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("mensagemErro", "Erro ao salvar UC: " + e.getMessage());
+        } catch (Exception e) {
+             ra.addFlashAttribute("mensagemErro", "Erro interno ao salvar UC: " + e.getMessage());
+        }
+        return "redirect:/coordenador/gestao/cursos";
     }
 
     // ==================== RELATÓRIOS ====================

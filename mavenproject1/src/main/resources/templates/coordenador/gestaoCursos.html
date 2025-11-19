@@ -68,7 +68,12 @@
                     <td th:text="${curso.id}">1</td>
                     <td th:text="${curso.nome}"></td>
                     <td>
-                        <a th:href="@{'/coordenador/curso/deletar/' + ${curso.id}}" class="action-link" onclick="return confirm('Tem certeza que deseja deletar este curso?')">Deletar</a>
+                        <form th:action="@{/coordenador/curso/deletar/{id}(id=${curso.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="action-link" style="background:none; border:none; padding:0; cursor:pointer;"
+                                    onclick="return confirm('Tem certeza que deseja deletar este curso? ATENÇÃO: Isso pode afetar UCs vinculadas.')">
+                                Deletar
+                            </button>
+                        </form>
                     </td>
                 </tr>
             </tbody>
@@ -120,77 +125,6 @@
             </tbody>
         </table>
         
-        <h2>Turmas Ofertadas</h2>
-        
-        <form th:action="@{/coordenador/turma/salvar}" th:object="${novaTurma}" method="post" class="form-group">
-            <label for="turmaUC">Unidade Curricular (Disciplina):</label>
-            <select id="turmaUC" name="ucId" required>
-                <option value="">Selecione a UC...</option>
-                <option th:each="uc : ${ucs}"
-                        th:value="${uc.id}"
-                        th:text="${uc.nome}">
-                </option>
-            </select>
-            
-            <label for="turmaProfessor">Professor Responsável:</label>
-            <select id="turmaProfessor" name="professorId" required>
-                <option value="">Selecione o Professor...</option>
-                <option th:each="prof : ${professores}"
-                        th:value="${prof.id}"
-                        th:text="${prof.nome}">
-                </option>
-            </select>
-
-            <label>Alunos (Selecione os alunos para matricular):</label>
-            <div class="checkbox-list">
-                <div th:each="aluno : ${alunos}" class="checkbox-item">
-                    <input type="checkbox" 
-                        name="alunoIds" 
-                        th:value="${aluno.id}" 
-                        th:id="${'aluno_' + aluno.id}" />
-                    
-                    <label th:for="${'aluno_' + aluno.id}" 
-                        th:text="${aluno.nome + ' (' + aluno.matriculaSiape + ')'}"
-                        style="display: inline; font-weight: normal; cursor: pointer;">
-                    </label>
-                </div>
-            </div>
-            <p style="font-size: 0.8em; color: #666; margin-top: -5px;">
-                * Marque as caixas para selecionar os alunos desta turma.
-            </p>
-
-            <label for="turmaAno">Ano:</label>
-            <input type="number" id="turmaAno" th:field="*{ano}" placeholder="Ex: 2024" required min="1900" max="2100" />
-            
-            <label for="turmaSemestre">Semestre:</label>
-            <input type="number" id="turmaSemestre" th:field="*{semestre}" placeholder="Ex: 1 ou 2" required min="1" max="2" />
-
-            <button type="submit">Salvar Turma(s)</button>
-        </form>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>UC / Disciplina</th>
-                    <th>Professor</th>
-                    <th>Período</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="turma : ${turmas}">
-                    <td th:text="${turma.id}">1</td>
-                    <td th:text="${turma.uc.nome}"></td>
-                    <td th:text="${turma.professor.nome}"></td>
-                    <td th:text="${turma.ano + '/' + turma.semestre}"></td>
-                    <td>
-                        <a th:href="@{'/coordenador/turma/deletar/' + ${turma.id}}" class="action-link" onclick="return confirm('Tem certeza que deseja deletar esta turma?')">Deletar</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
     </div>
 </body>
 </html>
