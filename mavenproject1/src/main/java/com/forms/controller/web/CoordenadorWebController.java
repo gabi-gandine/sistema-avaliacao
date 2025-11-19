@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Controller MVC para interface do Coordenador
@@ -338,6 +339,61 @@ public class CoordenadorWebController {
             ra.addFlashAttribute("mensagemErro", "Erro interno ao deletar UC: " + e.getMessage());
         }
         return "redirect:/coordenador/gestao/cursos";
+    }
+
+    /**
+     * Processa a criação de nova turma
+     * RF06
+     */
+    @PostMapping("/turmas/salvar")
+    public String salvarTurma(
+            @RequestParam Integer ano, 
+            @RequestParam Integer semestre,
+            @RequestParam Integer ucId,
+            @RequestParam(required = false) List<Integer> professoresIds,
+            @RequestParam(required = false) List<Integer> alunosIds,
+            RedirectAttributes ra) {
+        try {
+            if (ano == null || semestre == null || ucId == null) {
+                 throw new IllegalArgumentException("Ano, Semestre e Unidade Curricular são obrigatórios.");
+            }
+            
+            Turma novaTurma = new Turma();
+            novaTurma.setAno(ano);
+            novaTurma.setSemestre(semestre);
+            
+            UnidadeCurricular uc = unidadeCurricularService.buscarPorId(ucId)
+                    .orElseThrow(() -> new IllegalArgumentException("Unidade Curricular não encontrada."));
+            novaTurma.setUc(uc);
+            
+            if (professoresIds != null && !professoresIds.isEmpty()) {
+                Set<Usuario> professores = new java.util.HashSet<>();
+                for (Integer id : professoresIds) {
+                    usuarioService.buscarPorId(id).ifPresent(professores::add);
+                }
+                novaTurma.setProfessores(professores);
+            }
+
+            if (alunosIds != null && !alunosIds.isEmpty()) {
+                Set<Usuario> alunos = new java.util.HashSet<>();
+                for (Integer id : alunosIds) {
+                    usuarioService.buscarPorId(id).ifPresent(alunos::add);
+                }
+                novaTurma.setAlunos(alunos);
+            }
+
+            turmaService.salvar(novaTurma);
+
+            ra.addFlashAttribute("mensagemSucesso", "Turma criada com sucesso!");
+            return "redirect:/coordenador/turmas";
+            
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("mensagemErro", "Erro ao criar turma: " + e.getMessage());
+            return "redirect:/coordenador/turmas/nova";
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensagemErro", "Erro interno ao criar turma. Detalhe: " + e.getMessage());
+            return "redirect:/coordenador/turmas/nova";
+        }
     }
 
     // ==================== RELATÓRIOS ====================
