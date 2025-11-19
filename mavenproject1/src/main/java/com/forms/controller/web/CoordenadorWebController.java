@@ -304,7 +304,7 @@ public class CoordenadorWebController {
     
     /**
      * Salva ou atualiza uma Unidade Curricular (RF04)
-     * Recebe o ID do curso separadamente (@RequestParam) para vincular corretamente.
+     * Recebe o ID do curso separadamente (@RequestParam)
      */
     @PostMapping("/uc/salvar")
     public String salvarUC(@ModelAttribute UnidadeCurricular novaUC, @RequestParam Integer cursoId, RedirectAttributes ra) {
@@ -314,13 +314,28 @@ public class CoordenadorWebController {
 
             novaUC.setCurso(curso);
             
-            // Delega a lógica de salvar/atualizar para o Service
             unidadeCurricularService.salvar(novaUC);
             ra.addFlashAttribute("mensagemSucesso", "Unidade Curricular salva com sucesso!");
         } catch (IllegalArgumentException e) {
             ra.addFlashAttribute("mensagemErro", "Erro ao salvar UC: " + e.getMessage());
         } catch (Exception e) {
              ra.addFlashAttribute("mensagemErro", "Erro interno ao salvar UC: " + e.getMessage());
+        }
+        return "redirect:/coordenador/gestao/cursos";
+    }
+
+    /**
+     * DELETAR UNIDADE CURRICULAR
+     */
+    @PostMapping("/uc/deletar/{id}")
+    public String deletarUC(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            unidadeCurricularService.deletar(id);
+            ra.addFlashAttribute("mensagemSucesso", "Unidade Curricular deletada com sucesso!");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("mensagemErro", "Erro ao deletar UC: " + e.getMessage());
+        } catch (Exception e) {
+            ra.addFlashAttribute("mensagemErro", "Erro interno ao deletar UC: " + e.getMessage());
         }
         return "redirect:/coordenador/gestao/cursos";
     }

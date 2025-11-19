@@ -91,7 +91,7 @@
             <input type="text" id="ucTipo" th:field="*{tipo}" placeholder="Ex: Obrigatória/Extensão" required />
             
             <label for="ucCurso">Vincular ao Curso:</label>
-            <select id="ucCurso" th:field="*{curso.id}" required>
+            <select id="ucCurso" name="cursoId" required>
                 <option value="">Selecione um Curso...</option>
                 <option th:each="curso : ${cursos}"
                         th:value="${curso.id}"
@@ -119,7 +119,12 @@
                     <td th:text="${uc.tipo}"></td>
                     <td th:text="${uc.curso.nome}"></td>
                     <td>
-                        <a th:href="@{'/coordenador/uc/deletar/' + ${uc.id}}" class="action-link" onclick="return confirm('Tem certeza que deseja deletar esta UC?')">Deletar</a>
+                        <form th:action="@{/coordenador/uc/deletar/{id}(id=${uc.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="action-link" style="background:none; border:none; padding:0; cursor:pointer;"
+                                    onclick="return confirm('Tem certeza que deseja deletar esta UC? ATENÇÃO: Isso pode afetar Turmas vinculadas.')">
+                                Deletar
+                            </button>
+                        </form>
                     </td>
                 </tr>
             </tbody>
