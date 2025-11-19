@@ -10,5 +10,7 @@ public interface QuestaoRepository extends JpaRepository<Questao, Integer> {
 
     List<Questao> findByAvaliacaoOrderByOrdemAsc(Avaliacao avaliacao);
 
+    List<Questao> findByAvaliacaoOrderByOrdemDesc(Avaliacao avaliacao);
+
     List<Questao> findByAvaliacaoIdOrderByOrdemAsc(Integer avaliacaoId);
 }

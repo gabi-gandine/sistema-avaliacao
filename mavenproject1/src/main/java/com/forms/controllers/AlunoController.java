@@ -3,7 +3,9 @@ package com.forms.controllers;
 import com.forms.models.Turma;
 import com.forms.models.Usuario;
 import com.forms.models.Avaliacao;
+import com.forms.models.Questao;
 import com.forms.repository.AvaliacaoRepository;
+import com.forms.repository.QuestaoRepository;
 import com.forms.security.CustomUserDetailsService;
 
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -29,6 +32,9 @@ public class AlunoController {
 
     @Autowired
     private AvaliacaoRepository avaliacaoRepository;
+
+    @Autowired
+    private QuestaoRepository questaoRepository;
     
     // @Autowired 
     // private AvaliacaoService avaliacaoService; 
@@ -56,6 +62,17 @@ public class AlunoController {
         model.addAttribute("paginaTitulo", "Dashboard do Aluno");
 
         return "aluno/dashboard"; 
+    }
+
+    @GetMapping("/avaliacao/{id}")
+    public String avaliacao(@PathVariable int id, Model model) {
+        Avaliacao a = avaliacaoRepository.findById(id).get();
+        List<Questao> q = questaoRepository.findByAvaliacaoOrderByOrdemDesc(a);
+
+        model.addAttribute("avaliacao", a);
+        model.addAttribute("questoes", q);
+
+        return "/aluno/avaliacao";
     }
 
 }
